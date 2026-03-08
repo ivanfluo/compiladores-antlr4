@@ -1,5 +1,9 @@
 package com.compiladores;
 
+import com.compiladores.errors.HtmlErrorLogger;
+import com.compiladores.errors.IErrorLogger;
+import com.compiladores.errors.LexicalErrorListener;
+import com.compiladores.errors.SyntaxErrorListener;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import picocli.CommandLine;
@@ -15,6 +19,8 @@ public class App implements Callable<Integer> {
         String input = "";
         Scanner scanner = new Scanner(System.in);
 
+        IErrorLogger logger = new HtmlErrorLogger();
+
         do {
             System.out.println("Ingrese una cadena > ");
             input = scanner.nextLine();
@@ -22,11 +28,19 @@ public class App implements Callable<Integer> {
             if(input.equals("exit")) continue;
 
             ArrayIntLexer lexer = new ArrayIntLexer(CharStreams.fromString(input));
+
+            lexer.removeErrorListeners();
+            lexer.addErrorListener(new LexicalErrorListener(logger));
+
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+
             ArrayIntParser parser = new ArrayIntParser(tokenStream);
 
             ParseTree tree = parser.init();
+
             System.out.println(tree.toStringTree(parser));
+
+            logger.generateReport("errores.html");
 
         }while (!input.equals("exit"));
         return 0;
