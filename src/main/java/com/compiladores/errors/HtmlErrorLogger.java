@@ -2,7 +2,6 @@ package com.compiladores.errors;
 
 // [Inicio][8/03/2026][Ivan Hernandez][Tarjeta de Jira: https://miumg-team-compi.atlassian.net/browse/SCRUM-9][Implementación de la clase que genera la bitacora de errores en html.]
 
-import java.io.Console;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
