@@ -12,7 +12,6 @@ import picocli.CommandLine;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name="ArrayIntCommand", mixinStandardHelpOptions = true, version = "0.0.1", description = "Ultra basic ANTLR4 analizer")
@@ -21,7 +20,7 @@ public class App implements Callable<Integer> {
     @Override
     public Integer call() throws Exception{
 
-        String src = SourceReader.readSource("");
+        String src = SourceReader.readSource("src/test/resources/inputs/test1.txt");
 
         //instancias de handlers para errores en etapas de analisis
         CustomErrorHandler lexerErrorHandler = new CustomErrorHandler(ErrorType.LEXICO);
@@ -56,7 +55,7 @@ public class App implements Callable<Integer> {
 
             //generacion de bitacora de tokens
             tokenTable.generate(
-                    "btc_tokens.html",
+                    "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_tokens.html",
                     "Bitacora de Tokens",
                     tokenList
             );
@@ -64,10 +63,13 @@ public class App implements Callable<Integer> {
 
         //generacion de bitacora de errores lexicos
         lexerErrorTable.generate(
-                "btc_err_lexicos.html",
+                "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_err_lexicos.html",
                 "Bitacora de Errores Lexicos",
                 lexerErrorHandler.getErrorList()
         );
+
+        //reinicio de tokenStream para parser
+        tokenStream.seek(0);
 
         //generador de parser
         ArrayIntParser parser = new ArrayIntParser(tokenStream);
@@ -79,13 +81,14 @@ public class App implements Callable<Integer> {
         ParseTree tree = parser.init();
 
         parserErrorTable.generate(
-                "btc_err_sintacticos.html",
+                "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_err_sintacticos.html",
                 "Bitacora de Errores Sintacticos",
                 parserErrorHandler.getErrorList()
         );
 
         if(parserErrorHandler.hasErrors()) {
             //terminar ejecucion
+            return 0;
         }
 
         return 0;
