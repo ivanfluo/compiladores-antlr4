@@ -1,6 +1,8 @@
 package com.compiladores.models;
 
 import com.compiladores.io.IReportable;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.Vocabulary;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,11 +22,12 @@ public class TokenModel implements IReportable {
     private int linea;
     private int columna;
 
-    public TokenModel(String lexema, String tipo, int linea, int columna) {
-        this.lexema = lexema;
-        this.tipo = tipo;
-        this.linea = linea;
-        this.columna = columna;
+    public TokenModel(Token t, Vocabulary v) {
+        String symbolicName = v.getSymbolicName(t.getType());
+        this.lexema = (symbolicName != null) ? symbolicName : "LITERAL/OTRO";
+        this.lexema = t.getText();
+        this.linea = t.getLine();
+        this.columna = t.getCharPositionInLine();
     }
 
     @Override
