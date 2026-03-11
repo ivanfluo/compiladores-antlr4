@@ -1,6 +1,25 @@
 grammar ShinobiScript;
 
 // Gramatica o Producciones
+expresion
+    : expresion op=(MULT | DIV) expresion
+    | expresion op=(PLUS | MINUS) expresion
+    | expresion op=(LT | GT | LEQ | GEQ) expresion
+    | expresion op=(EQ | NEQ) expresion
+    | expresion op=(AND | OR) expresion
+    | NOT expresion
+    | LPAREN expresion RPAREN
+    | literal
+    | ID
+    ;
+
+declaracion
+    : tipo ID SEMI // chakra;
+    ;
+
+asignacion
+    : tipo ID ASSIGN literal SEMI // tipo nombre = valor;
+    ;
 
 // literales
 literal
@@ -13,7 +32,7 @@ literal
     ;
 
 // tipos
-type
+tipo
     : CHAKRA
     | RYO
     | KANA
