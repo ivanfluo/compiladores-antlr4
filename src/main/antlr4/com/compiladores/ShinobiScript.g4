@@ -1,24 +1,112 @@
 grammar ShinobiScript;
 
+init
+    : (declaracionFuncion)* main EOF
+    ;
+
+main
+    : KAKEMONO LPAREN RPAREN bloque
+    ;
+
+declaracionFuncion
+    : JUTSU (tipo | MU) ID LPAREN parametros RPAREN bloque
+    ;
+
+parametros
+    : tipo ID (COMMA tipo ID)*
+    ;
+
+bloque
+    : LBRACE sentencia* RBRACE
+    ;
+
+// generacion de sentencias (como termina)
+sentencia
+    : declaracion SEMI
+    | asignacion SEMI
+    | sentenciaControl
+    | sentenciaIterativa
+    | llamadaFuncion SEMI
+    | impresion SEMI
+    | retorno SEMI
+    | bloque
+    ;
+
+sentenciaControl
+    : declaracionIf
+    | declaracionSwitch
+    ;
+
+sentenciaIterativa
+    : declaracionFor
+    | declaracionWhile
+    | declaracionDoWhile SEMI
+    ;
+
+// generacion de declaraciones (que hace)
+declaracionSwitch
+    : HENKA LPAREN expresion RPAREN LBRACE
+        declaracionCase+ declaracionDefault?
+    RBRACE
+    ;
+
+declaracionCase
+    : REI literal COLON sentencia* KOWASU SEMI
+    ;
+
+declaracionDefault
+    : KYUBI COLON sentencia* (KOWASU SEMI)?
+    ;
+
+declaracionIf
+    : MOSHI LPAREN expresion RPAREN bloque (MATA LPAREN expresion RPAREN bloque)* (SORE bloque)?
+    ;
+
+declaracionWhile
+    : NAGARA LPAREN expresion RPAREN bloque
+    ;
+
+declaracionDoWhile
+    : SURU bloque NAGARA LPAREN expresion RPAREN SEMI
+    ;
+
+declaracionFor
+    : KURIKAE LPAREN (declaracion | asignacion)? SEMI expresion SEMI asignacion RPAREN bloque
+    ;
+
+declaracion
+    : tipo ID (ASSIGN expresion)? // chakra nombre = valor ;
+    ;
+
+asignacion
+    : ID ASSIGN expresion // nombre = valor;
+    ;
+
+impresion
+    : KAI LPAREN expresion RPAREN
+    ;
+
+retorno
+    : KUCHIYOSE expresion?
+    ;
+
 // Gramatica o Producciones
 expresion
-    : expresion op=(MULT | DIV) expresion
+    : LPAREN expresion RPAREN
+    | NOT expresion
+    | expresion op=(MULT | DIV) expresion
     | expresion op=(PLUS | MINUS) expresion
     | expresion op=(LT | GT | LEQ | GEQ) expresion
     | expresion op=(EQ | NEQ) expresion
     | expresion op=(AND | OR) expresion
-    | NOT expresion
-    | LPAREN expresion RPAREN
-    | literal
+    | llamadaFuncion
     | ID
+    | literal
     ;
 
-declaracion
-    : tipo ID SEMI // chakra;
-    ;
-
-asignacion
-    : tipo ID ASSIGN literal SEMI // tipo nombre = valor;
+//llamda a funciones
+llamadaFuncion
+    : ID LPAREN (expresion (COMMA expresion)*)? RPAREN
     ;
 
 // literales
@@ -53,6 +141,11 @@ SORE            : 'sore';           // else
 MATA            : 'mata';           // elseif
 NARA            : 'nara';           // then
 
+HENKA           : 'henka';          // switch
+REI             : 'rei';            // case
+KOWASU          : 'kowasu';         // break
+KYUBI           : 'kiyubi';         // default
+
 KURIKAE         : 'kurikae';        // for
 NAGARA          : 'nagara';         // while
 SURU            : 'suru';           // do while
@@ -73,6 +166,7 @@ RBRACE          : '}';
 SEMI            : ';';
 COMMA           : ',';
 ASSIGN          : '=';
+COLON           : ':';
 
 PLUS            : '+';
 MINUS           : '-';
