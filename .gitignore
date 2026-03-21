@@ -19,4 +19,5 @@ pom.xml.next
 .DS_Store
 Thumbs.db
 
+#directorio output para bitacoras
 output/
