@@ -1,7 +1,7 @@
 grammar ArrayInt;
 
 //Gramatica
-init: '{' value(',' value)* '}';
+init: '{' value(',' value)* '}' EOF;
 
 value: init
     | INT
