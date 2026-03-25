@@ -20,7 +20,7 @@ public class App implements Callable<Integer> {
     @Override
     public Integer call() throws Exception{
 
-        String src = SourceReader.readSource("src/test/resources/inputs/test1.txt");
+        String src = SourceReader.readSource("src/test/resources/inputs/testParseError.txt");
 
         //instancias de handlers para errores en etapas de analisis
         CustomErrorHandler lexerErrorHandler = new CustomErrorHandler(ErrorType.LEXICO);
@@ -32,7 +32,7 @@ public class App implements Callable<Integer> {
         HTMLReportGenerator<ErrorModel> parserErrorTable = new HTMLReportGenerator<>();
 
         //generador de lexer
-        ArrayIntLexer lexer = new ArrayIntLexer(CharStreams.fromString(src));
+        ShinobiScriptLexer lexer = new ShinobiScriptLexer(CharStreams.fromString(src));
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);
 
         //inyeccion de error handler personalizado para lexer
@@ -42,24 +42,22 @@ public class App implements Callable<Integer> {
         //llenado de tokens
         tokenStream.fill();
 
-        if(!lexerErrorHandler.hasErrors()) {
-            //recopilacion de tokens
-            Vocabulary v = lexer.getVocabulary();
-            List<TokenModel> tokenList = new ArrayList<>();
+        //recopilacion de tokens
+        Vocabulary v = lexer.getVocabulary();
+        List<TokenModel> tokenList = new ArrayList<>();
 
-            for(Token t : tokenStream.getTokens()) {
-                if(t.getType() != Token.EOF) {
-                    tokenList.add(new TokenModel(t,v));
-                }
+        for(Token t : tokenStream.getTokens()) {
+            if(t.getType() != Token.EOF) {
+                tokenList.add(new TokenModel(t,v));
             }
-
-            //generacion de bitacora de tokens
-            tokenTable.generate(
-                    "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_tokens.html",
-                    "Bitacora de Tokens",
-                    tokenList
-            );
         }
+
+        //generacion de bitacora de tokens
+        tokenTable.generate(
+                "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_tokens.html",
+                "Bitacora de Tokens",
+                tokenList
+        );
 
         //generacion de bitacora de errores lexicos
         lexerErrorTable.generate(
@@ -72,7 +70,7 @@ public class App implements Callable<Integer> {
         tokenStream.seek(0);
 
         //generador de parser
-        ArrayIntParser parser = new ArrayIntParser(tokenStream);
+        ShinobiScriptParser parser = new ShinobiScriptParser(tokenStream);
 
         //inyeccion de error handler personalizado para parser
         parser.removeErrorListeners();

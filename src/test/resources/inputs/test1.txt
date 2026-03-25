@@ -1,1 +1,14 @@
-{2,3}}
+jutsu chakra factorial(chakra n) {
+    moshi (n <= 1) {
+        kuchiyose 1;
+    } sore {
+        // Aquí ocurre la magia: la función se llama a sí misma
+        kuchiyose n * factorial(n - 1);
+    }
+}
+
+kakemono() {
+    chakra resultado = factorial(5);
+    kai(resultado);
+    @
+}

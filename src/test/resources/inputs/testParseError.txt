@@ -1,0 +1,35 @@
+// ERROR 1: Definición de jutsu dentro del kakemono (violación de estructura global)
+kakemono() {
+
+    jutsu chakra calcular(chakra a) {
+        kuchiyose a * 2;
+    }
+
+    // ERROR 2: Falta el SEMI en una declaración
+    chakra nivel = 10
+
+    // ERROR 3: Bucle Kurikae mal formado (falta la actualización obligatoria)
+    kurikae (chakra i = 0; i < 5; ) {
+        kai(i);
+    }
+
+    // ERROR 4: Switch (Henka) sin KOWASU (incumplimiento de "buenas prácticas")
+    henka (nivel) {
+        rei 10:
+            kai("Nivel máximo");
+        kyubi:
+            kai("Nivel bajo");
+            kowasu;
+    }
+
+    // ERROR 5: Uso de asignación con SEMI dentro de una expresión o estructura
+    nagara (nivel > 0;) {
+        nivel = nivel - 1;
+    }
+
+    //ERROR 6: error lexico - token no identificado
+    @
+}
+
+// ERROR 7: Código huérfano (sentencias fuera de funciones o del main)
+kai("Fin del programa");
