@@ -22,25 +22,25 @@ bloque
 
 // generacion de sentencias (como termina)
 sentencia
-    : declaracion SEMI
-    | asignacion SEMI
-    | sentenciaControl
-    | sentenciaIterativa
-    | llamadaFuncion SEMI
-    | impresion SEMI
-    | retorno SEMI
-    | bloque
+    : declaracion SEMI      #SDeclaracion
+    | asignacion SEMI       #SAsignacion
+    | sentenciaControl      #SControl
+    | sentenciaIterativa    #SIterativa
+    | llamadaFuncion SEMI   #SLlamada
+    | impresion SEMI        #SImpresion
+    | retorno SEMI          #SRetorno
+    | bloque                #SBloque
     ;
 
 sentenciaControl
-    : declaracionIf
-    | declaracionSwitch
+    : declaracionIf         #CIf
+    | declaracionSwitch     #CSwitch
     ;
 
 sentenciaIterativa
-    : declaracionFor
-    | declaracionWhile
-    | declaracionDoWhile SEMI
+    : declaracionFor            #IFor
+    | declaracionWhile          #IWhile
+    | declaracionDoWhile SEMI   #IDoWhile
     ;
 
 // generacion de declaraciones (que hace)
@@ -92,16 +92,16 @@ retorno
 
 // Gramatica o Producciones
 expresion
-    : LPAREN expresion RPAREN
-    | NOT expresion
-    | expresion op=(MULT | DIV) expresion
-    | expresion op=(PLUS | MINUS) expresion
-    | expresion op=(LT | GT | LEQ | GEQ) expresion
-    | expresion op=(EQ | NEQ) expresion
-    | expresion op=(AND | OR) expresion
-    | llamadaFuncion
-    | ID
-    | literal
+    : LPAREN expresion RPAREN                           #EParentesis
+    | NOT expresion                                     #ENegacion
+    | expresion op=(MULT | DIV) expresion               #EMultiplicativa
+    | expresion op=(PLUS | MINUS) expresion             #EAditiva
+    | expresion op=(LT | GT | LEQ | GEQ) expresion      #ERelacional
+    | expresion op=(EQ | NEQ) expresion                 #EIgualdad
+    | expresion op=(AND | OR) expresion                 #ELogica
+    | llamadaFuncion                                    #ELlamada
+    | ID                                                #EVariable
+    | literal                                           #ELiteral
     ;
 
 //llamda a funciones
@@ -111,12 +111,12 @@ llamadaFuncion
 
 // literales
 literal
-    : DOUBLE
-    | INT // chakra edad = 18;
-    | CHAR
-    | STRING
-    | MARU // shinri verdadero = maru
-    | BATSU // shinri falso = batsu
+    : DOUBLE    #LDouble
+    | INT       #LInt
+    | CHAR      #LChar
+    | STRING    #LString
+    | MARU      #LTrue
+    | BATSU     #LFalse
     ;
 
 // tipos
