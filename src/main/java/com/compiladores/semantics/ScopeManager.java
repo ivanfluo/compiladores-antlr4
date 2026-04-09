@@ -1,5 +1,8 @@
 package com.compiladores.semantics;
 
+import com.compiladores.models.ScopeModel;
+import com.compiladores.semantics.models.Symbol;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +10,8 @@ public class ScopeManager {
     private SymbolTable currentScope;
     private final List<SymbolTable> scopes;
     private static ScopeManager instance;
+
+    private final List<ScopeModel> scopeHistory = new ArrayList<>();
 
     private ScopeManager() {
         this.currentScope = new SymbolTable(null, "Global");
@@ -29,6 +34,7 @@ public class ScopeManager {
 
     public void pop() {
         if(currentScope.getParent() != null) {
+            addScopeToHistory(currentScope);
             currentScope = currentScope.getParent();
         }
     }
@@ -37,13 +43,23 @@ public class ScopeManager {
         return currentScope;
     }
 
-    public List<SymbolTable> getScopes() {
-        return scopes;
+    public List<ScopeModel> getScopes() {
+        if(currentScope != null && currentScope.getParent() == null) {
+            addScopeToHistory(currentScope);
+        }
+        return scopeHistory;
     }
 
     public void reset() {
         this.currentScope = new SymbolTable(null, "Global");
         this.scopes.clear();
         this.scopes.add(this.currentScope);
+        this.scopeHistory.clear();
+    }
+
+    private void addScopeToHistory(SymbolTable currentScope) {
+        for(Symbol s : currentScope.getSymbols().values()) {
+            this.scopeHistory.add(new ScopeModel(currentScope.getScopeName(),s));
+        }
     }
 }
