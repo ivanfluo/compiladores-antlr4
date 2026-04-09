@@ -1,4 +1,4 @@
-package com.compiladores.semantics;
+package com.compiladores.semantics.models;
 
 import java.util.LinkedList;
 import java.util.List;

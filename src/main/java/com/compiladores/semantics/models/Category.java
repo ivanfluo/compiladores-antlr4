@@ -1,4 +1,4 @@
-package com.compiladores.semantics;
+package com.compiladores.semantics.models;
 
 public enum Category {
     VARIABLE,       //SIMBOLO VARIABLE

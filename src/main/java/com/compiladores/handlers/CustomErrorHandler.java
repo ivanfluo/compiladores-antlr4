@@ -21,8 +21,8 @@ import java.util.List;
  * @version 1.0
  */
 public class CustomErrorHandler extends BaseErrorListener {
-    private final List<ErrorModel> errorList = new ArrayList<>();
-    private final ErrorType defaultErrorType;
+    protected final List<ErrorModel> errorList = new ArrayList<>();
+    protected final ErrorType defaultErrorType;
 
     public CustomErrorHandler(ErrorType defaultErrorType) {
         this.defaultErrorType = defaultErrorType;

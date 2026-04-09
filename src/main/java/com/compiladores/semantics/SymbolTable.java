@@ -1,5 +1,7 @@
 package com.compiladores.semantics;
 
+import com.compiladores.semantics.models.Symbol;
+
 import java.util.HashMap;
 import java.util.Map;
 
