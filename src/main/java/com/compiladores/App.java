@@ -104,17 +104,6 @@ public class App implements Callable<Integer> {
 
         if(semanticErrorHandler.hasErrors()) {
             System.out.println("PROCESO DETENIDO: El pergamino contiene errores SEMANTICOS, por favor verifique la bitacora ninja.");
-            scopeTable.generate(
-                    "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_scopes.html",
-                    "Bitacora de contextos",
-                    semanticVisitor.getScopesReport()
-            );
-
-            callTable.generate(
-                    "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_calls.html",
-                    "Bitacora de llamadas",
-                    semanticVisitor.getCallsReport()
-            );
             semanticErrorTable.generate(
                     "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_err_semanticos.html",
                     "Bitacora de Errores Semanticos",
@@ -122,6 +111,18 @@ public class App implements Callable<Integer> {
             );
             return 1;
         }
+
+        scopeTable.generate(
+                "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_scopes.html",
+                "Bitacora de contextos",
+                semanticVisitor.getScopesReport()
+        );
+
+        callTable.generate(
+                "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_calls.html",
+                "Bitacora de llamadas",
+                semanticVisitor.getCallsReport()
+        );
 
         return 0;
     }

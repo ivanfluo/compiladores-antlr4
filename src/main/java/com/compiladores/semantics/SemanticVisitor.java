@@ -666,6 +666,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
         if(izq == Type.CHAKRA && der == Type.CHAKRA) return Type.CHAKRA;
         if((izq == Type.CHAKRA || izq == Type.RYO) && (der == Type.CHAKRA || der == Type.RYO)) return Type.RYO;
+        if(izq == Type.MOJI && der == Type.MOJI) return Type.MOJI;
 
         errorHandler.addSemanticError(
                 "ForbiddenJutsuOperation: El operador aritmetico \'" + op + "\' no puede combinar elementos " + izq + " con " + der + ".",
