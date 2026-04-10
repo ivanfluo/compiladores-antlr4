@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Generador universal de reporteria en formato HTML.
@@ -56,6 +57,37 @@ public class HTMLReportGenerator<T extends IReportable>{
 
             bw.write("</table></body></html>");
         }catch (IOException e) {
+            System.out.println("Error al escribir el reporte: " + e.getMessage());
+        }
+    }
+
+    public void generate(String filename, String title, Map<String,List<T>> data) {
+        if(data.isEmpty()) return;
+
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
+            bw.write("<html><head><title>" + title + "</title>");
+            bw.write("<style>table { border-collapse: collapse; width: 100%; }" +
+                    "th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }" +
+                    "th { background-color: #4CAF50; color: white;}</style></head><body>");
+            bw.write("<h1>" + title + "</h1>");
+            for(Map.Entry<String,List<T>> entry : data.entrySet()) {
+                bw.write("<h2>CONTEXTO: " + entry.getKey() + "</h2>");
+                bw.write("<table><tr>");
+                for(String header : entry.getValue().get(0).getHeaders()) {
+                    bw.write("<th>" + header + "</th>");
+                }
+                bw.write("</tr>");
+                for(T item : entry.getValue()) {
+                    bw.write("<tr>");
+                    for(String cell : item.toRow()) {
+                        bw.write("<td>" + (cell != null ? cell : "") + "</td>");
+                    }
+                    bw.write("</tr>");
+                }
+                bw.write("</table><br>");
+            }
+            bw.write("</body></html>");
+        }catch(IOException e) {
             System.out.println("Error al escribir el reporte: " + e.getMessage());
         }
     }

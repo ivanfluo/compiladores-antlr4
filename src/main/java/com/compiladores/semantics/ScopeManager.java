@@ -4,7 +4,10 @@ import com.compiladores.models.ScopeModel;
 import com.compiladores.semantics.models.Symbol;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ScopeManager {
     private SymbolTable currentScope;
@@ -43,11 +46,16 @@ public class ScopeManager {
         return currentScope;
     }
 
-    public List<ScopeModel> getScopes() {
+    public Map<String,List<ScopeModel>> getScopes() {
         if(currentScope != null && currentScope.getParent() == null) {
             addScopeToHistory(currentScope);
         }
-        return scopeHistory;
+        return scopeHistory.stream()
+                .collect(Collectors.groupingBy(
+                        ScopeModel::getScope,
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
     }
 
     public void reset() {

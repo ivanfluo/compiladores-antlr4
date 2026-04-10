@@ -9,10 +9,7 @@ import com.compiladores.semantics.models.Category;
 import com.compiladores.semantics.models.Symbol;
 import com.compiladores.semantics.models.Type;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     private final ScopeManager scopeManager;
@@ -29,7 +26,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
         return this.errorHandler;
     }
 
-    public List<ScopeModel> getScopesReport() {
+    public Map<String, List<ScopeModel>> getScopesReport() {
         return this.scopeManager.getScopes();
     }
 

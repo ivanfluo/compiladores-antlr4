@@ -34,4 +34,6 @@ public class ScopeModel implements IReportable {
                 Integer.toString(this.line)
         );
     }
+
+    public String getScope() { return scope; }
 }
