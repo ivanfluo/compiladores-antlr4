@@ -24,8 +24,8 @@ public class TokenModel implements IReportable {
 
     public TokenModel(Token t, Vocabulary v) {
         String symbolicName = v.getSymbolicName(t.getType());
-        this.lexema = (symbolicName != null) ? symbolicName : "LITERAL/OTRO";
         this.lexema = t.getText();
+        this.tipo = (symbolicName != null) ? symbolicName : "LITERAL/OTRO";
         this.linea = t.getLine();
         this.columna = t.getCharPositionInLine();
     }
