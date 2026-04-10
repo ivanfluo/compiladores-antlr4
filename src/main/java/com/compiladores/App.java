@@ -3,10 +3,7 @@ package com.compiladores;
 import com.compiladores.handlers.CustomErrorHandler;
 import com.compiladores.io.HTMLReportGenerator;
 import com.compiladores.io.SourceReader;
-import com.compiladores.models.ErrorModel;
-import com.compiladores.models.ErrorType;
-import com.compiladores.models.ScopeModel;
-import com.compiladores.models.TokenModel;
+import com.compiladores.models.*;
 import com.compiladores.semantics.SemanticVisitor;
 import com.compiladores.semantics.handlers.SemanticErrorHandler;
 import org.antlr.v4.runtime.*;
@@ -23,7 +20,7 @@ public class App implements Callable<Integer> {
     @Override
     public Integer call() throws Exception{
 
-        String src = SourceReader.readSource("src/test/resources/inputs/testCompound.txt");
+        String src = SourceReader.readSource("src/test/resources/inputs/TestCallManger.txt");
 
         //instancias de handlers para errores en etapas de analisis
         CustomErrorHandler lexerErrorHandler = new CustomErrorHandler(ErrorType.LEXICO);
@@ -32,6 +29,7 @@ public class App implements Callable<Integer> {
         //instancias de generadores para bitacoras
         HTMLReportGenerator<TokenModel> tokenTable = new HTMLReportGenerator<>();
         HTMLReportGenerator<ScopeModel> scopeTable = new HTMLReportGenerator<>();
+        HTMLReportGenerator<CallModel> callTable = new HTMLReportGenerator<>();
 
         HTMLReportGenerator<ErrorModel> lexerErrorTable = new HTMLReportGenerator<>();
         HTMLReportGenerator<ErrorModel> parserErrorTable = new HTMLReportGenerator<>();
@@ -110,6 +108,12 @@ public class App implements Callable<Integer> {
                     "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_scopes.html",
                     "Bitacora de contextos",
                     semanticVisitor.getScopesReport()
+            );
+
+            callTable.generate(
+                    "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_calls.html",
+                    "Bitacora de llamadas",
+                    semanticVisitor.getCallsReport()
             );
             semanticErrorTable.generate(
                     "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_err_semanticos.html",

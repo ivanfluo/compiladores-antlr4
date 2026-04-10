@@ -28,15 +28,12 @@ public class CallManager {
     }
 
     public Map<String,List<CallModel>> getCalls() {
-        if(!calls.isEmpty()) {
-            return calls.stream()
-                    .collect(Collectors.groupingBy(
-                            CallModel::getCallerContext,
-                            LinkedHashMap::new,
-                            Collectors.toList()
-                    ));
-        }
-        return null;
+        return calls.stream()
+                .collect(Collectors.groupingBy(
+                        CallModel::getCallerContext,
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
     }
 
     public void reset() {

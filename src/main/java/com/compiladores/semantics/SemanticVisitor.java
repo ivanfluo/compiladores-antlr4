@@ -2,6 +2,7 @@ package com.compiladores.semantics;
 
 import com.compiladores.ShinobiScriptBaseVisitor;
 import com.compiladores.ShinobiScriptParser;
+import com.compiladores.models.CallModel;
 import com.compiladores.models.ErrorType;
 import com.compiladores.models.ScopeModel;
 import com.compiladores.semantics.handlers.SemanticErrorHandler;
@@ -14,12 +15,14 @@ import java.util.*;
 public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     private final ScopeManager scopeManager;
     private final SemanticErrorHandler errorHandler;
+    private final CallManager callManager;
 
     private Type currentFunctionReturnType = null;
 
     public SemanticVisitor() {
         this.scopeManager = ScopeManager.getInstance();
         this.errorHandler = new SemanticErrorHandler(ErrorType.SEMANTICO);
+        this.callManager = CallManager.getInstance();
     }
 
     public SemanticErrorHandler getErrorHandler() {
@@ -28,6 +31,10 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
     public Map<String, List<ScopeModel>> getScopesReport() {
         return this.scopeManager.getScopes();
+    }
+
+    public Map<String, List<CallModel>> getCallsReport() {
+        return this.callManager.getCalls();
     }
 
     @Override
@@ -539,12 +546,20 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
     @Override
     public Type visitSLlamada(ShinobiScriptParser.SLlamadaContext ctx) {
+        String callee = ctx.llamadaFuncion().ID().getText();
+        String caller = scopeManager.getCurrentScope().getScopeName();
+        callManager.add(caller,callee, ctx.start.getLine());
+
         visit(ctx.llamadaFuncion());
         return Type.MU;
     }
 
     @Override
     public Type visitELlamada(ShinobiScriptParser.ELlamadaContext ctx) {
+        String callee = ctx.llamadaFuncion().ID().getText();
+        String caller = scopeManager.getCurrentScope().getScopeName();
+        callManager.add(caller,callee, ctx.start.getLine());
+
         Type returnType = visit(ctx.llamadaFuncion());
 
         if(returnType == Type.ERROR) return Type.ERROR;

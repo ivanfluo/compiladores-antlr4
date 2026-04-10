@@ -17,13 +17,12 @@ public class CallModel implements IReportable {
     }
 
     @Override
-    public List<String> getHeaders() { return Arrays.asList("invocador","funcion invocada","linea"); }
+    public List<String> getHeaders() { return Arrays.asList("funcion invocada","linea"); }
 
     @Override
     public List<String> toRow() {
         return Arrays.asList(
             this.calleeName,
-            this.callerContext,
             Integer.toString(this.line)
         );
     }
