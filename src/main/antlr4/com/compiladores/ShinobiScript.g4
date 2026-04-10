@@ -40,7 +40,7 @@ sentenciaControl
 sentenciaIterativa
     : declaracionFor            #IFor
     | declaracionWhile          #IWhile
-    | declaracionDoWhile SEMI   #IDoWhile
+    | declaracionDoWhile        #IDoWhile
     ;
 
 // generacion de declaraciones (que hace)

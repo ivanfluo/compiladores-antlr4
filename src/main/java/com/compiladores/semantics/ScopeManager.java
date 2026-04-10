@@ -14,7 +14,7 @@ public class ScopeManager {
     private final List<ScopeModel> scopeHistory = new ArrayList<>();
 
     private ScopeManager() {
-        this.currentScope = new SymbolTable(null, "Global");
+        this.currentScope = new SymbolTable(null, "GLOBAL");
         this.scopes = new ArrayList<>();
         this.scopes.add(this.currentScope);
     }
@@ -51,7 +51,7 @@ public class ScopeManager {
     }
 
     public void reset() {
-        this.currentScope = new SymbolTable(null, "Global");
+        this.currentScope = new SymbolTable(null, "GLOBAL");
         this.scopes.clear();
         this.scopes.add(this.currentScope);
         this.scopeHistory.clear();
