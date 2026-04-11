@@ -19,6 +19,7 @@ import java.util.List;
 public class TokenModel implements IReportable {
     private String lexema;
     private String tipo;
+    private String tipoExterno;
     private int linea;
     private int columna;
 
@@ -26,17 +27,40 @@ public class TokenModel implements IReportable {
         String symbolicName = v.getSymbolicName(t.getType());
         this.lexema = t.getText();
         this.tipo = (symbolicName != null) ? symbolicName : "LITERAL/OTRO";
+        this.tipoExterno = toExternalType((symbolicName != null) ? symbolicName : "N/A");
         this.linea = t.getLine();
         this.columna = t.getCharPositionInLine();
     }
 
     @Override
     public List<String> getHeaders() {
-        return Arrays.asList("Lexema", "Tipo", "Linea", "Columna");
+        return Arrays.asList("Lexema", "Tipo interno", "Tipo externo", "Linea", "Columna");
     }
 
     @Override
     public List<String> toRow() {
-        return Arrays.asList(lexema, tipo, String.valueOf(linea), String.valueOf(columna));
+        return Arrays.asList(lexema, tipo, tipoExterno, String.valueOf(linea), String.valueOf(columna));
+    }
+
+    private String toExternalType(String value) {
+        return switch(value) {
+            case "CHAKRA" -> "INTEGER";
+            case "RYO" -> "DOUBLE";
+            case "KANA" -> "CHAR";
+            case "SHINRI" -> "BOOLEAN";
+            case "MOJI" -> "STRING";
+            case "MU" -> "VOID";
+
+            case "JUTSU", "MOSHI", "SORE", "KUCHIYOSE", "KAKEMONO", "KURIKAE", "KAI"
+                -> "KEYWORD";
+            case "LPAREN", "RPAREN", "LBRACE", "RBRACE", "SEMI", "COMMA"
+                -> "DELIMETER";
+            case "ASSIGN", "GT", "LT", "LEQ", "GEQ", "EQ", "NEQ", "PLUS", "MINUS", "MULT", "DIV"
+                -> "OPERATOR";
+            case "ID" -> "IDENTIFIER";
+            case "INT", "DOUBLE", "STRING", "CHAR", "MARU", "BATSU"
+                -> "LITERAL";
+            default -> "N/A";
+        };
     }
 }
