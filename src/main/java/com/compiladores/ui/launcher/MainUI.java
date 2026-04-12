@@ -1,20 +1,30 @@
 package com.compiladores.ui.launcher;
 
 import com.compiladores.ui.views.MainView;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
 
 import javax.swing.*;
 
 public class MainUI {
     public static void main(String[] args) {
-        JFrame frame = new JFrame("ShinobiScript Analyzer");
+        try {
+            FlatMacLightLaf.setup();
 
-        MainView mainView = new MainView();
+            SwingUtilities.invokeLater(() -> {
+                JFrame frame = new JFrame("ShinobiScript Analyzer");
 
-        frame.setContentPane(mainView.getMainPanel());
+                MainView mainView = new MainView();
 
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(900, 600);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+                frame.setContentPane(mainView.getMainPanel());
+
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setSize(900, 600);
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+            });
+
+        } catch (Exception ex) {
+            System.err.println("Error " + ex);
+        }
     }
 }
