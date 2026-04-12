@@ -159,31 +159,31 @@ JUTSU           : 'jutsu';          // function
 KUCHIYOSE       : 'kuchiyose';      // return
 KAI             : 'kai';            // print
 
-LPAREN          : '(';
-RPAREN          : ')';
-LBRACE          : '{';
-RBRACE          : '}';
-SEMI            : ';';
-COMMA           : ',';
-ASSIGN          : '=';
-COLON           : ':';
+LPAREN          : 'LPAREN(';
+RPAREN          : ')RPAREN';
+LBRACE          : 'LBRACE{';
+RBRACE          : '}RBRACE';
+SEMI            : ';SEMI';
+COMMA           : ',COMMA';
+ASSIGN          : '=ASSIGN';
+COLON           : ':COLON';
 
-PLUS            : '+';
-MINUS           : '-';
-MULT            : '*';
-DIV             : '/';
+PLUS            : '+PLUS';
+MINUS           : '-MINUS';
+MULT            : '*MULT';
+DIV             : '/DIV';
 
-LEQ             : '<=';
-GEQ             : '>=';
-EQ              : '==';
-NEQ             : '!=';
+LEQ             : '<=LEQ';
+GEQ             : '>=GEQ';
+EQ              : '==EQ';
+NEQ             : '!=NEQ';
 
-LT              : '<';
-GT              : '>';
+LT              : '<LT';
+GT              : '>GT';
 
-AND             : '&&';
-OR              : '||';
-NOT             : '!';
+AND             : '&&AND';
+OR              : '||OR';
+NOT             : '!NOT';
 
 DOUBLE          : [0-9]+ '.' [0-9]+;
 INT             : [0-9]+;
