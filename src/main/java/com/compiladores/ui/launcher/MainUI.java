@@ -18,7 +18,8 @@ public class MainUI {
                 frame.setContentPane(mainView.getMainPanel());
 
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setSize(900, 600);
+                frame.setSize(1024, 768);
+                frame.setMinimumSize(new java.awt.Dimension(800, 600));
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
             });
