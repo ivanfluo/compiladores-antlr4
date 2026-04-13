@@ -37,13 +37,13 @@
                   <text value="Button"/>
                 </properties>
               </component>
-              <component id="a1b85" class="javax.swing.JButton" binding="btnClear">
+              <component id="1401f" class="javax.swing.JButton" binding="btnBrowser">
                 <constraints/>
                 <properties>
                   <text value="Button"/>
                 </properties>
               </component>
-              <component id="1401f" class="javax.swing.JButton" binding="btnBrowser">
+              <component id="a1b85" class="javax.swing.JButton" binding="btnClear">
                 <constraints/>
                 <properties>
                   <text value="Button"/>

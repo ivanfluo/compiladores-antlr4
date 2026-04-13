@@ -94,6 +94,7 @@ public class MainView {
     }
 
     private void runAnalysis() {
+        cleanHandler();
         String codigo = editor.getText();
 
         if (codigo == null || codigo.trim().isEmpty()) {
@@ -209,6 +210,22 @@ public class MainView {
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
+        }
+    }
+
+    private void cleanHandler() {
+        String outputDir = System.getProperty("user.dir") + "/output/";
+        File file = new File(outputDir);
+
+        if (file.exists() && file.isDirectory()) {
+
+            File[] files = file.listFiles((dir, name) -> name.endsWith(".html"));
+
+            if (files != null) {
+                for (File itemFile : files) {
+                    itemFile.delete();
+                }
+            }
         }
     }
 }
