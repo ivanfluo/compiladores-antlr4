@@ -19,9 +19,11 @@ import java.util.List;
 public class CompilerService {
     public static int analyze(String src) {
         try {
+            //instancias de handlers para errores en etapas de analisis
             CustomErrorHandler lexerErrorHandler = new CustomErrorHandler(ErrorType.LEXICO);
             CustomErrorHandler parserErrorHandler = new CustomErrorHandler(ErrorType.SINTACTICO);
 
+            //instancias de generadores para bitacoras
             HTMLReportGenerator<TokenModel> tokenTable = new HTMLReportGenerator<>();
             HTMLReportGenerator<ScopeModel> scopeTable = new HTMLReportGenerator<>();
             HTMLReportGenerator<CallModel> callTable = new HTMLReportGenerator<>();
@@ -31,59 +33,64 @@ public class CompilerService {
             HTMLReportGenerator<ErrorModel> semanticErrorTable = new HTMLReportGenerator<>();
 
 
+            //generador de lexer
             ShinobiScriptLexer lexer = new ShinobiScriptLexer(CharStreams.fromString(src));
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
 
+            //inyeccion de error handler personalizado para lexer
             lexer.removeErrorListeners();
             lexer.addErrorListener(lexerErrorHandler);
 
+            //llenado de tokens
             tokenStream.fill();
 
+            //recopilacion de tokens
             Vocabulary v = lexer.getVocabulary();
             List<TokenModel> tokenList = new ArrayList<>();
 
-            for (Token t : tokenStream.getTokens()) {
-                if (t.getType() != Token.EOF) {
-                    tokenList.add(new TokenModel(t, v));
+            for(Token t : tokenStream.getTokens()) {
+                if(t.getType() != Token.EOF) {
+                    tokenList.add(new TokenModel(t,v));
                 }
             }
 
-            if (lexerErrorHandler.hasErrors()) {
-                System.out.println("Errores léxicos detectados");
-
+            if(lexerErrorHandler.hasErrors()) {
+                System.out.println("PROCESO DETENIDO: El pergamino contiene errores LEXICOS, por favor verifique la bitacora ninja.");
+                //generacion de bitacora de errores lexicos
                 lexerErrorTable.generate(
-                        "output/btc_err_lexicos.html",
-                        "Errores Léxicos",
+                        "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_err_lexicos.html",
+                        "Bitacora de Errores Lexicos",
                         lexerErrorHandler.getErrorList()
                 );
-
                 return 1;
             }
 
+            //generacion de bitacora de tokens
             tokenTable.generate(
-                    "output/btc_tokens.html",
-                    "Tokens",
+                    "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_tokens.html",
+                    "Bitacora de Tokens",
                     tokenList
             );
 
+            //reinicio de tokenStream para parser
             tokenStream.seek(0);
 
+            //generador de parser
             ShinobiScriptParser parser = new ShinobiScriptParser(tokenStream);
 
+            //inyeccion de error handler personalizado para parser
             parser.removeErrorListeners();
             parser.addErrorListener(parserErrorHandler);
 
             ParseTree tree = parser.init();
 
-            if (parserErrorHandler.hasErrors()) {
-                System.out.println("Errores sintácticos detectados");
-
+            if(parserErrorHandler.hasErrors()) {
+                System.out.println("PROCESO DETENIDO: El pergamino contiene errores SINTACTICOS, por favor verifique la bitacora ninja.");
                 parserErrorTable.generate(
-                        "output/btc_err_sintacticos.html",
-                        "Errores Sintácticos",
+                        "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_err_sintacticos.html",
+                        "Bitacora de Errores Sintacticos",
                         parserErrorHandler.getErrorList()
                 );
-
                 return 1;
             }
 
@@ -92,27 +99,25 @@ public class CompilerService {
 
             SemanticErrorHandler semanticErrorHandler = semanticVisitor.getErrorHandler();
 
-            if (semanticErrorHandler.hasErrors()) {
-                System.out.println("Errores semánticos detectados");
-
+            if(semanticErrorHandler.hasErrors()) {
+                System.out.println("PROCESO DETENIDO: El pergamino contiene errores SEMANTICOS, por favor verifique la bitacora ninja.");
                 semanticErrorTable.generate(
-                        "output/btc_err_semanticos.html",
-                        "Errores Semánticos",
+                        "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_err_semanticos.html",
+                        "Bitacora de Errores Semanticos",
                         semanticErrorHandler.getErrorList()
                 );
-
                 return 1;
             }
 
             scopeTable.generate(
-                    "output/btc_scopes.html",
-                    "Scopes",
+                    "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_scopes.html",
+                    "Bitacora de contextos",
                     semanticVisitor.getScopesReport()
             );
 
             callTable.generate(
-                    "output/btc_calls.html",
-                    "Calls",
+                    "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_calls.html",
+                    "Bitacora de llamadas",
                     semanticVisitor.getCallsReport()
             );
 
