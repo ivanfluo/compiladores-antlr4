@@ -43,6 +43,12 @@
                   <text value="Button"/>
                 </properties>
               </component>
+              <component id="1401f" class="javax.swing.JButton" binding="btnBrowser">
+                <constraints/>
+                <properties>
+                  <text value="Button"/>
+                </properties>
+              </component>
             </children>
           </toolbar>
           <vspacer id="12423">

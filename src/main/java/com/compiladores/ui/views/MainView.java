@@ -17,6 +17,7 @@ public class MainView {
     private JButton btnRun;
     private JButton btnClear;
     private JToolBar toolBar;
+    private JButton btnBrowser;
     private RSyntaxTextArea editor;
 
     public JPanel getMainPanel() {
@@ -29,6 +30,7 @@ public class MainView {
         styleToolbarButtons();
 
         btnOpen.addActionListener(e -> openFile());
+        btnClear.addActionListener(e -> clean());
     }
 
     private void createUIComponents() {
@@ -58,10 +60,13 @@ public class MainView {
         btnClear.setIcon(new FlatSVGIcon("icons/trash-2.svg", 16, 16));
         btnClear.setToolTipText("Limpiar");
 
+        btnBrowser.setIcon(new FlatSVGIcon("icons/earth.svg", 16, 16));
+        btnBrowser.setToolTipText("Abrir resultados en el navegador");
+
     }
 
     private void styleToolbarButtons() {
-        for (JButton btn : new JButton[]{btnOpen, btnRun, btnClear}) {
+        for (JButton btn : new JButton[]{btnOpen, btnRun, btnClear, btnBrowser}) {
             btn.setText(null);
             btn.setMargin(new Insets(4, 4, 4, 4));
         }
@@ -78,9 +83,20 @@ public class MainView {
                 String content = Files.readString(file.toPath());
 
                 editor.setText(content);
+                editor.setCaretPosition(0);
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(mainPanel, "Error al abrrir el archivo");
+        }
+    }
+
+    private void clean() {
+        try {
+            editor.setText("");
+            editor.setCaretPosition(0);
+            editor.requestFocus();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(mainPanel, "Error no fue posible limpiar el editor");
         }
     }
 }
