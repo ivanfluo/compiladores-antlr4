@@ -37,6 +37,11 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
         return this.callManager.getCalls();
     }
 
+    public void resetSemanticVisitor() {
+        scopeManager.reset();
+        callManager.reset();
+    }
+
     @Override
     public Type visitInit(ShinobiScriptParser.InitContext ctx) {
         for(ShinobiScriptParser.DeclaracionFuncionContext func : ctx.declaracionFuncion()) {

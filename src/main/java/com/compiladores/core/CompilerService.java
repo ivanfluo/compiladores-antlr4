@@ -109,6 +109,7 @@ public class CompilerService {
                         "Bitacora de Errores Semanticos",
                         semanticErrorHandler.getErrorList()
                 );
+                semanticVisitor.resetSemanticVisitor();
                 return 1;
             }
 
@@ -123,7 +124,7 @@ public class CompilerService {
                     "Bitacora de llamadas",
                     semanticVisitor.getCallsReport()
             );
-
+            semanticVisitor.resetSemanticVisitor();
             return 0;
 
         } catch (Exception ex) {
