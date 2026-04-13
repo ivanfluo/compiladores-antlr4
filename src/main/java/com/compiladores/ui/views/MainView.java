@@ -1,5 +1,6 @@
 package com.compiladores.ui.views;
 
+import com.compiladores.core.CompilerService;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -30,6 +31,7 @@ public class MainView {
         styleToolbarButtons();
 
         btnOpen.addActionListener(e -> openFile());
+        btnRun.addActionListener(e -> runAnalysis());
         btnClear.addActionListener(e -> clean());
     }
 
@@ -87,6 +89,35 @@ public class MainView {
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(mainPanel, "Error al abrrir el archivo");
+        }
+    }
+
+    private void runAnalysis() {
+        String codigo = editor.getText();
+
+        if (codigo == null || codigo.trim().isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    mainPanel,
+                    "No hay código para analizar.\n\n" +
+                            "Puedes:\n" +
+                            "• Escribir código en el editor \n" +
+                            "• O cargar un archivo desde el botón Abrir archivo",
+                    "ShinobiScript Analyzer",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            editor.requestFocus();
+            return;
+        }
+
+
+        int result = CompilerService.analyze(codigo);
+
+        if (result == 0) {
+            JOptionPane.showMessageDialog(mainPanel, "Análisis exitoso");
+        } else {
+            JOptionPane.showMessageDialog(mainPanel, "Se produjo un error durante el análisis.");
         }
     }
 
