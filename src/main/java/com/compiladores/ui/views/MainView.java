@@ -127,8 +127,41 @@ public class MainView {
             editor.setText("");
             editor.setCaretPosition(0);
             editor.requestFocus();
+
+            String outputDir = System.getProperty("user.dir") + "/output/";
+            File file = new File(outputDir);
+
+            int eliminated = 0;
+
+            if (file.exists() && file.isDirectory()) {
+
+                File[] files = file.listFiles((dir, name) -> name.endsWith(".html"));
+
+                if (files != null) {
+                    for (File itemFile : files) {
+                        if (itemFile.delete()) {
+                            eliminated++;
+                        }
+                    }
+                }
+            }
+
+            if (eliminated > 0) {
+                JOptionPane.showMessageDialog(
+                        mainPanel,
+                        "Se eliminaron " + eliminated + " reporte(s)",
+                        "ShinobiScript Analyzer",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
+
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(mainPanel, "Error no fue posible limpiar el editor");
+            JOptionPane.showMessageDialog(
+                    mainPanel,
+                    "No fue posible limpiar completamente.\n\n" + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
