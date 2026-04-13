@@ -1,0 +1,45 @@
+// === PRUEBA DE ERRORES PARA SHINOBISCRIPT ===
+
+// ERROR SINTÁCTICO 1: Jutsu declarado fuera de lugar o con mala estructura
+// Según tu gramática, 'init' acepta (declaracionFuncion)* y luego 'main' [cite: 1]
+jutsu chakra sumar(chakra a, chakra b){
+    kuchiyose a + b; // Error: Falta el bloque LBRACE/RBRACE
+}
+
+// ERROR SEMÁNTICO 1: Parámetros duplicados en la firma
+jutsu mu entrenamiento(chakra energia, chakra energia) {
+    kai(energia);
+}
+
+kakemono() {
+    // ERROR LÉXICO 1: Uso de símbolos no definidos en el Lexer
+    chakra chakra_prohibido = 100; // El caracter '@' no existe [cite: 91]
+
+    // ERROR SINTÁCTICO 2: Falta de punto y coma (SEMI)
+    chakra nivel = 10;
+
+    // ERROR SEMÁNTICO 2: Variable no declarada
+    kai(fuerza);
+
+    // ERROR SEMÁNTICO 3: Tipos incompatibles en asignación
+    nivel = "Jonin"; // No puedes asignar MOJI a CHAKRA
+
+    // ERROR SEMÁNTICO 4: Uso de función MU en una expresión
+    nivel = 5 + entrenamiento(10); // entrenamiento es 'mu' [cite: 60, 64]
+
+    // ERROR SINTÁCTICO 3: Bucle 'kurikae' mal formado [cite: 22, 57]
+    kurikae (nivel = 0; nivel < 5; nivel = nivel + 1) { // Falta la tercera parte y cerrar el paréntesis correctamente
+        kai(nivel);
+    }
+
+    // ERROR SEMÁNTICO 5: Condición de 'nagara' no es booleana (SHINRI) [cite: 20, 47]
+    nagara (nivel) {
+        nivel = nivel - 1;
+    }
+
+    // ERROR SEMÁNTICO 6: Invocación de Jutsu inexistente
+    invocar_rasengan();
+
+    // ERROR SEMÁNTICO 7: Retorno (KUCHIYOSE) fuera de un Jutsu
+    kuchiyose 0;
+}

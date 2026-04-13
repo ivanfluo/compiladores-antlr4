@@ -1,0 +1,33 @@
+jutsu chakra obtener_rango(chakra nivel) {
+    moshi (nivel > 10) {
+        kuchiyose 3;
+    }
+    kuchiyose 1;
+}
+
+jutsu chakra calcular_poder(chakra base, chakra nivel) {
+    chakra rango = obtener_rango(nivel);
+    kuchiyose base * rango;
+}
+
+jutsu mu alerta_combate(moji mensaje) {
+    kai("ALERTA: " + mensaje);
+}
+
+jutsu mu iniciar_duelo(moji oponente, chakra poder_base) {
+    alerta_combate(oponente);
+    chakra nivel_final = calcular_poder(poder_base, 15);
+    kai("Poder calculado: ");
+    kai(nivel_final);
+}
+
+kakemono() {
+    chakra p1 = 50;
+    moji rival = "Sasuke";
+
+    iniciar_duelo(rival, p1);
+
+    moshi (p1 > 40) {
+        alerta_combate("Duelo de alto nivel");
+    }
+}
