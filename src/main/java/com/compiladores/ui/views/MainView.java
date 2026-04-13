@@ -33,6 +33,7 @@ public class MainView {
         btnOpen.addActionListener(e -> openFile());
         btnRun.addActionListener(e -> runAnalysis());
         btnClear.addActionListener(e -> clean());
+        btnBrowser.addActionListener(e -> openReports());
     }
 
     private void createUIComponents() {
@@ -128,6 +129,53 @@ public class MainView {
             editor.requestFocus();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(mainPanel, "Error no fue posible limpiar el editor");
+        }
+    }
+
+    private void openReports() {
+
+        try {
+            String outputDir = System.getProperty("user.dir") + "/output/";
+            java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+
+            String[] reportes = {
+                    "btc_tokens.html",
+                    "btc_err_lexicos.html",
+                    "btc_err_sintacticos.html",
+                    "btc_err_semanticos.html",
+                    "btc_scopes.html",
+                    "btc_calls.html"
+            };
+
+            int open = 0;
+
+            for (String nombre : reportes) {
+                File file = new File(outputDir + nombre);
+
+                if (file.exists()) {
+                    desktop.browse(file.toURI());
+                    open++;
+                }
+            }
+
+            if (open == 0) {
+                JOptionPane.showMessageDialog(
+                        mainPanel,
+                        "No hay reportes disponibles.\n\n" +
+                                "Ejecuta un análisis primero para generar resultados.",
+                        "ShinobiScript Analyzer",
+                        JOptionPane.WARNING_MESSAGE
+                );
+            }
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                    mainPanel,
+                    "Ocurrió un error al intentar abrir los reportes.\n\n" +
+                            ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 }
