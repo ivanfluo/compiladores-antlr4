@@ -19,6 +19,9 @@ import java.util.List;
 public class CompilerService {
     public static int analyze(String src) {
         try {
+            String outputDir = System.getProperty("user.dir") + "/output/";
+            new java.io.File(outputDir).mkdirs();
+
             //instancias de handlers para errores en etapas de analisis
             CustomErrorHandler lexerErrorHandler = new CustomErrorHandler(ErrorType.LEXICO);
             CustomErrorHandler parserErrorHandler = new CustomErrorHandler(ErrorType.SINTACTICO);
@@ -48,17 +51,17 @@ public class CompilerService {
             Vocabulary v = lexer.getVocabulary();
             List<TokenModel> tokenList = new ArrayList<>();
 
-            for(Token t : tokenStream.getTokens()) {
-                if(t.getType() != Token.EOF) {
-                    tokenList.add(new TokenModel(t,v));
+            for (Token t : tokenStream.getTokens()) {
+                if (t.getType() != Token.EOF) {
+                    tokenList.add(new TokenModel(t, v));
                 }
             }
 
-            if(lexerErrorHandler.hasErrors()) {
+            if (lexerErrorHandler.hasErrors()) {
                 System.out.println("PROCESO DETENIDO: El pergamino contiene errores LEXICOS, por favor verifique la bitacora ninja.");
                 //generacion de bitacora de errores lexicos
                 lexerErrorTable.generate(
-                        "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_err_lexicos.html",
+                        outputDir + "btc_err_lexicos.html",
                         "Bitacora de Errores Lexicos",
                         lexerErrorHandler.getErrorList()
                 );
@@ -67,7 +70,7 @@ public class CompilerService {
 
             //generacion de bitacora de tokens
             tokenTable.generate(
-                    "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_tokens.html",
+                    outputDir + "btc_tokens.html",
                     "Bitacora de Tokens",
                     tokenList
             );
@@ -84,10 +87,10 @@ public class CompilerService {
 
             ParseTree tree = parser.init();
 
-            if(parserErrorHandler.hasErrors()) {
+            if (parserErrorHandler.hasErrors()) {
                 System.out.println("PROCESO DETENIDO: El pergamino contiene errores SINTACTICOS, por favor verifique la bitacora ninja.");
                 parserErrorTable.generate(
-                        "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_err_sintacticos.html",
+                        outputDir + "btc_err_sintacticos.html",
                         "Bitacora de Errores Sintacticos",
                         parserErrorHandler.getErrorList()
                 );
@@ -99,10 +102,10 @@ public class CompilerService {
 
             SemanticErrorHandler semanticErrorHandler = semanticVisitor.getErrorHandler();
 
-            if(semanticErrorHandler.hasErrors()) {
+            if (semanticErrorHandler.hasErrors()) {
                 System.out.println("PROCESO DETENIDO: El pergamino contiene errores SEMANTICOS, por favor verifique la bitacora ninja.");
                 semanticErrorTable.generate(
-                        "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_err_semanticos.html",
+                        outputDir + "btc_err_semanticos.html",
                         "Bitacora de Errores Semanticos",
                         semanticErrorHandler.getErrorList()
                 );
@@ -110,13 +113,13 @@ public class CompilerService {
             }
 
             scopeTable.generate(
-                    "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_scopes.html",
+                    outputDir + "btc_scopes.html",
                     "Bitacora de contextos",
                     semanticVisitor.getScopesReport()
             );
 
             callTable.generate(
-                    "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_calls.html",
+                    outputDir + "btc_calls.html",
                     "Bitacora de llamadas",
                     semanticVisitor.getCallsReport()
             );
