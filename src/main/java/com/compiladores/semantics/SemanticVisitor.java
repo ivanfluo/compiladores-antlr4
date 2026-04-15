@@ -267,8 +267,14 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
             validateBooleanCondition(nestedConditionType, ctx.expresion(i));
         }
 
-        for(ShinobiScriptParser.BloqueContext bloque : ctx.bloque()) {
-            visit(bloque);
+        for(int i = 0; i < ctx.bloque().size(); i++) {
+            String tag = (i == 0) ? "IF" : (i < ctx.expresion().size() ? "ELSE IF" : "THEN");
+
+            scopeManager.push(tag + "_LN" + ctx.bloque(i).start.getLine());
+
+            visit(ctx.bloque(i));
+
+            scopeManager.pop();
         }
 
         return Type.MU;
@@ -276,6 +282,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
     @Override
     public Type visitDeclaracionSwitch(ShinobiScriptParser.DeclaracionSwitchContext ctx) {
+        scopeManager.push("SWITCH_LN" + ctx.start.getLine());
         Type initConditionType = visit(ctx.expresion());
 
         if(initConditionType == Type.ERROR) return Type.ERROR;
@@ -347,6 +354,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
             visit(defaultContext);
         }
 
+        scopeManager.pop();
         return Type.MU;
     }
 
@@ -373,7 +381,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
         if(ctx.declaracion() != null) {
             visit(ctx.declaracion());
-        }else if(ctx.asignacion().size() > 1) {
+        }else if(ctx.asignacion() != null && !ctx.asignacion().isEmpty()) {
             hasInitialAssignment = true;
             visit(ctx.asignacion(0));
         }
@@ -389,13 +397,14 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
             }
         }
 
+        visit(ctx.bloque());
+
         if(hasInitialAssignment) {
-            visit(ctx.asignacion(1));
-        }else {
             visit(ctx.asignacion(0));
+        }else if(ctx.asignacion().size() > 1){
+            visit(ctx.asignacion(1));
         }
 
-        visit(ctx.bloque());
 
         scopeManager.pop();
         return Type.MU;
@@ -664,6 +673,44 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
         }
 
         return returnTypeFound;
+    }
+
+    @Override
+    public Type visitDeclaracion(ShinobiScriptParser.DeclaracionContext ctx) {
+        String id = ctx.ID().getText();
+        Type tipoDeclarado = Type.toType(ctx.tipo().getText());
+
+        if (scopeManager.getCurrentScope().getSymbols().containsKey(id)) {
+            errorHandler.addSemanticError(
+                    "NinjaCloningException: El ninja [ " + id + " ] ya ha sido entrenado en este contexto.",
+                    ctx.start.getLine(),
+                    ctx.start.getCharPositionInLine()
+            );
+            return Type.ERROR;
+        }
+
+        if (ctx.expresion() != null) {
+            Type tipoExpresion = visit(ctx.expresion());
+            if (tipoExpresion != Type.ERROR && tipoDeclarado != tipoExpresion) {
+                errorHandler.addSemanticError(
+                        "ChakraMismatchException: No se puede asignar " + tipoExpresion +
+                                " a un ninja de tipo " + tipoDeclarado + ".",
+                        ctx.expresion().start.getLine(),
+                        ctx.expresion().start.getCharPositionInLine()
+                );
+                return Type.ERROR;
+            }
+        }
+
+        Symbol nuevoNinja = new Symbol.Builder(id)
+                .setType(tipoDeclarado)
+                .setCategory(Category.VARIABLE)
+                .setLineOfDeclaration(ctx.start.getLine())
+                .build();
+
+        scopeManager.getCurrentScope().insert(nuevoNinja);
+
+        return tipoDeclarado;
     }
 
     private Type validateArithmeticRule(Type izq, Type der, String op, int line, int column) {
