@@ -547,8 +547,10 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
         scopeManager.getCurrentScope().insert(functionSymbol);
 
         scopeManager.push("JUTSU_"+functionName.toUpperCase() +"_LN" + ctx.start.getLine());
-        for(Symbol param : params) {
-            scopeManager.getCurrentScope().insert(param);
+        if(!params.isEmpty()) {
+            for(Symbol param : params) {
+                scopeManager.getCurrentScope().insert(param);
+            }
         }
 
         visit(ctx.bloque());
