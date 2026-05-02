@@ -2,10 +2,12 @@ package com.compiladores;
 
 import com.compiladores.handlers.CustomErrorHandler;
 import com.compiladores.io.HTMLReportGenerator;
+import com.compiladores.io.ObjectCodeGenerator;
 import com.compiladores.io.SourceReader;
 import com.compiladores.models.*;
 import com.compiladores.semantics.SemanticVisitor;
 import com.compiladores.semantics.handlers.SemanticErrorHandler;
+import com.compiladores.transpiler.ThreeAddressCodeVisitor;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import picocli.CommandLine;
@@ -20,7 +22,7 @@ public class App implements Callable<Integer> {
     @Override
     public Integer call() throws Exception{
 
-        String src = SourceReader.readSource("src/test/resources/inputs/TestCallManger.txt");
+        String src = SourceReader.readSource("src/test/resources/inputs/Test.txt");
 
         //instancias de handlers para errores en etapas de analisis
         CustomErrorHandler lexerErrorHandler = new CustomErrorHandler(ErrorType.LEXICO);
@@ -122,6 +124,15 @@ public class App implements Callable<Integer> {
                 "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\btc_calls.html",
                 "Bitacora de llamadas",
                 semanticVisitor.getCallsReport()
+        );
+
+        ObjectCodeGenerator objCodeGenerator = new ObjectCodeGenerator();
+        ThreeAddressCodeVisitor tacCode = new ThreeAddressCodeVisitor();
+        tacCode.visit(tree);
+
+        ObjectCodeGenerator.write(
+                "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\tac_codigo.txt",
+                tacCode.getSourceCode()
         );
 
         return 0;
