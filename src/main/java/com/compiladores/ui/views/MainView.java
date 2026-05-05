@@ -11,6 +11,8 @@ import picocli.CommandLine;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.nio.file.Files;
 
@@ -148,9 +150,27 @@ public class MainView {
             if (file.exists() && file.isDirectory()) {
 
                 File[] files = file.listFiles((dir, name) -> name.endsWith(".html"));
+                File[] txts = file.listFiles((dir, name) -> name.endsWith(".txt"));
+                File[] cpps = file.listFiles((dir, name) -> name.endsWith(".cpp"));
 
                 if (files != null) {
                     for (File itemFile : files) {
+                        if (itemFile.delete()) {
+                            eliminated++;
+                        }
+                    }
+                }
+
+                if (txts != null) {
+                    for (File itemFile : txts) {
+                        if (itemFile.delete()) {
+                            eliminated++;
+                        }
+                    }
+                }
+
+                if (cpps != null) {
+                    for (File itemFile : cpps) {
                         if (itemFile.delete()) {
                             eliminated++;
                         }
@@ -242,10 +262,10 @@ public class MainView {
 
     private void openGeneratedCode() {
         try {
-            String basePath = System.getProperty("user.dir") + "/src/test/resources/output/";
+            String basePath = System.getProperty("user.dir") + "/output/";
 
-            File file3Dir = new File(basePath + "codigo_3direcciones.txt");
-            File fileCpp = new File(basePath + "codigo.cpp");
+            File file3Dir = new File(basePath + "tac_codigo.txt");
+            File fileCpp = new File(basePath + "cpp_codigo.cpp");
 
             if (!file3Dir.exists() || !fileCpp.exists()) {
                 JOptionPane.showMessageDialog(
@@ -286,6 +306,16 @@ public class MainView {
 
     private JFrame createCodeWindow(String title, int x, int y, int w, int h, boolean isCpp) {
         JFrame frame = new JFrame(title);
+
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                if (frame == frame3Dir) frame3Dir = null;
+                if (frame == frameCpp) frameCpp = null;
+            }
+        });
 
         RSyntaxTextArea textArea = new RSyntaxTextArea(25, 80);
 
