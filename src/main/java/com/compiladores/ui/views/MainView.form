@@ -43,6 +43,12 @@
                   <text value="Button"/>
                 </properties>
               </component>
+              <component id="88b77" class="javax.swing.JButton" binding="btnOpenCode">
+                <constraints/>
+                <properties>
+                  <text value="Button"/>
+                </properties>
+              </component>
               <component id="a1b85" class="javax.swing.JButton" binding="btnClear">
                 <constraints/>
                 <properties>
