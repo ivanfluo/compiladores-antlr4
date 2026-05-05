@@ -11,6 +11,10 @@ public class TranslationVisitor extends ShinobiScriptBaseVisitor<String> {
         return this.sourceCode;
     }
 
+    public void resetTranslationVisitor() {
+        this.sourceCode = "";
+    }
+
     @Override
     public String visitLInt(ShinobiScriptParser.LIntContext ctx) {
         return ctx.INT().getText();
