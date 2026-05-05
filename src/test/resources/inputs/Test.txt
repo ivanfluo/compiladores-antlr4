@@ -1,0 +1,71 @@
+//ejemplo de comentario de linea
+JUTSU MU funJutsu KAISHI MOJI saludo SHURIO OUGI
+	KAI KAISHI "HOLA: " ZOKA saludo SHURIO TEN 
+GOKUI
+
+/*
+ * ejemplo de comentario de bloque
+ * funcion con retorno
+ * promocion de tipo int a double
+*/
+JUTSU RYO sumChakra KAISHI CHAKRA a MO RYO b SHURIO OUGI
+	CHAKRA temp NARI a TEN
+	KUCHIYOSE a ZOKA b TEN
+GOKUI
+
+//funcion main
+KAKEMONO KAISHI SHURIO OUGI
+	CHAKRA i NARI 0 TEN
+	MOJI saludo NARI "Ninja!" TEN
+
+	//ejemplo do-while
+	SURU OUGI
+		CHAKRA prueba NARI 1 TEN
+		funJutsu KAISHI saludo SHURIO TEN
+		i NARI i ZOKA 1 TEN
+	GOKUI NAGARA KAISHI i SAI 10 SHURIO TEN
+
+	//ejemplo for
+	KURIKAE KAISHI CHAKRA j NARI 0 TEN j SAI 10 TEN j NARI j ZOKA 1 SHURIO OUGI
+	    saludo NARI "Naruto!!" TEN
+		funJutsu KAISHI saludo SHURIO TEN
+	GOKUI
+
+	i NARI 0 TEN
+
+	//ejemplo while
+	NAGARA KAISHI i SAI 5 SHURIO OUGI
+	    saludo NARI "Sasuke!!" TEN
+		KANA chars NARI 'h' TEN
+		funJutsu KAISHI saludo SHURIO TEN
+		i NARI i ZOKA 1 TEN
+	GOKUI
+
+	//ejemplo if
+	MOSHI KAISHI i ONAJI 0 SHURIO OUGI
+		CHAKRA l NARI i TEN
+		funJutsu KAISHI saludo SHURIO TEN
+
+		//ejemplo if-else anidado
+		MOSHI KAISHI l ONAJI 0 SHURIO OUGI
+			funJutsu KAISHI saludo SHURIO TEN
+		GOKUI SORE OUGI
+			//ejemplo asignacion con retorno de otra funcion
+			RYO sum NARI sumChakra KAISHI 9 MO 1.5 SHURIO TEN
+		GOKUI
+	GOKUI
+
+	//ejemplo de print
+	KAI KAISHI "Una transformacion ninja se aproxima..." SHURIO TEN
+
+	//ejemplo switch
+	HENKA KAISHI i SHURIO OUGI
+		REI 0 TSUGI KAI KAISHI "hola ninjas!" SHURIO TEN KOWASU TEN
+		REI 1 TSUGI SHINRI verdadNinja NARI MARU TEN KOWASU TEN
+		KYUBI TSUGI KAI KAISHI "¡ninjas ocultos en la aldea!" SHURIO TEN
+	GOKUI
+
+    CHAKRA opcion NARI 0 TEN
+
+	MORAU KAISHI opcion SHURIO TEN
+GOKUI

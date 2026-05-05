@@ -9,7 +9,7 @@ main
     ;
 
 declaracionFuncion
-    : JUTSU (tipo | MU) ID LPAREN parametros RPAREN bloque
+    : JUTSU (tipo | MU) ID LPAREN parametros? RPAREN bloque
     ;
 
 parametros
@@ -28,6 +28,7 @@ sentencia
     | sentenciaIterativa    #SIterativa
     | llamadaFuncion SEMI   #SLlamada
     | impresion SEMI        #SImpresion
+    | lectura SEMI          #SLectura
     | retorno SEMI          #SRetorno
     | bloque                #SBloque
     ;
@@ -86,6 +87,10 @@ impresion
     : KAI LPAREN expresion RPAREN
     ;
 
+lectura
+    : MORAU LPAREN ID RPAREN
+    ;
+
 retorno
     : KUCHIYOSE expresion?
     ;
@@ -130,60 +135,61 @@ tipo
 
 // Lexer
 // Token        : Lexema
-CHAKRA          : 'chakra';         // int
-RYO             : 'ryo';            // double
-KANA            : 'kana';           // char
-SHINRI          : 'shinri';         // boolean
-MOJI            : 'moji';           // string
+CHAKRA          : 'CHAKRA';         // int
+RYO             : 'RYO';            // double
+KANA            : 'KANA';           // char
+SHINRI          : 'SHINRI';         // boolean
+MOJI            : 'MOJI';           // string
 
-MOSHI           : 'moshi';          // if
-SORE            : 'sore';           // else
-MATA            : 'mata';           // elseif
-NARA            : 'nara';           // then
+MOSHI           : 'MOSHI';          // if
+SORE            : 'SORE';           // else
+MATA            : 'MATA';           // elseif
+NARA            : 'NARA';           // then
 
-HENKA           : 'henka';          // switch
-REI             : 'rei';            // case
-KOWASU          : 'kowasu';         // break
-KYUBI           : 'kiyubi';         // default
+HENKA           : 'HENKA';          // switch
+REI             : 'REI';            // case
+KOWASU          : 'KOWASU';         // break
+KYUBI           : 'KYUBI';         // default
 
-KURIKAE         : 'kurikae';        // for
-NAGARA          : 'nagara';         // while
-SURU            : 'suru';           // do while
+KURIKAE         : 'KURIKAE';        // for
+NAGARA          : 'NAGARA';         // while
+SURU            : 'SURU';           // do while
 
-MU              : 'mu';             // void
-MARU            : 'maru';           // true
-BATSU           : 'batsu';          // false
+MU              : 'MU';             // void
+MARU            : 'MARU';           // true
+BATSU           : 'BATSU';          // false
 
-KAKEMONO        : 'kakemono';       // main
-JUTSU           : 'jutsu';          // function
-KUCHIYOSE       : 'kuchiyose';      // return
-KAI             : 'kai';            // print
+KAKEMONO        : 'KAKEMONO';       // main
+JUTSU           : 'JUTSU';          // function
+KUCHIYOSE       : 'KUCHIYOSE';      // return
+KAI             : 'KAI';            // print (cout)
+MORAU           : 'MORAU';          // read (cin)
 
-LPAREN          : 'LPAREN(';
-RPAREN          : ')RPAREN';
-LBRACE          : 'LBRACE{';
-RBRACE          : '}RBRACE';
-SEMI            : ';SEMI';
-COMMA           : ',COMMA';
-ASSIGN          : '=ASSIGN';
-COLON           : ':COLON';
+LPAREN          : 'KAISHI';
+RPAREN          : 'SHURIO';
+LBRACE          : 'OUGI';
+RBRACE          : 'GOKUI';
+SEMI            : 'TEN';
+COMMA           : 'MO';
+ASSIGN          : 'NARI';
+COLON           : 'TSUGI';
 
-PLUS            : '+PLUS';
-MINUS           : '-MINUS';
-MULT            : '*MULT';
-DIV             : '/DIV';
+PLUS            : 'ZOKA';
+MINUS           : 'GENSHO';
+MULT            : 'BAI';
+DIV             : 'WARU';
 
-LEQ             : '<=LEQ';
-GEQ             : '>=GEQ';
-EQ              : '==EQ';
-NEQ             : '!=NEQ';
+LEQ             : 'SAITO';
+GEQ             : 'DAITO';
+EQ              : 'ONAJI';
+NEQ             : 'CHIGAU';
 
-LT              : '<LT';
-GT              : '>GT';
+LT              : 'SAI';
+GT              : 'DAI';
 
-AND             : '&&AND';
-OR              : '||OR';
-NOT             : '!NOT';
+AND             : 'TO';
+OR              : 'MATAWA';
+NOT             : 'IE';
 
 DOUBLE          : [0-9]+ '.' [0-9]+;
 INT             : [0-9]+;
