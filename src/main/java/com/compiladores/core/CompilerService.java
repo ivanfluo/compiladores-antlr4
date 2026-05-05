@@ -4,9 +4,12 @@ import com.compiladores.ShinobiScriptLexer;
 import com.compiladores.ShinobiScriptParser;
 import com.compiladores.handlers.CustomErrorHandler;
 import com.compiladores.io.HTMLReportGenerator;
+import com.compiladores.io.ObjectCodeGenerator;
 import com.compiladores.models.*;
 import com.compiladores.semantics.SemanticVisitor;
 import com.compiladores.semantics.handlers.SemanticErrorHandler;
+import com.compiladores.transpiler.ThreeAddressCodeVisitor;
+import com.compiladores.transpiler.TranslationVisitor;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
@@ -124,7 +127,28 @@ public class CompilerService {
                     "Bitacora de llamadas",
                     semanticVisitor.getCallsReport()
             );
+
+            ObjectCodeGenerator objCodeGenerator = new ObjectCodeGenerator();
+            ThreeAddressCodeVisitor tacCode = new ThreeAddressCodeVisitor();
+            tacCode.visit(tree);
+            TranslationVisitor cppCode = new TranslationVisitor();
+            cppCode.visit(tree);
+
+            ObjectCodeGenerator.write(
+                    outputDir + "tac_codigo.txt",
+                    tacCode.getSourceCode()
+            );
+
+            ObjectCodeGenerator.write(
+                    outputDir + "cpp_codigo.cpp",
+                    cppCode.getSourceCode()
+            );
+
+
             semanticVisitor.resetSemanticVisitor();
+            tacCode.resetThreeAddressCodeVisitor();
+            cppCode.resetTranslationVisitor();
+
             return 0;
 
         } catch (Exception ex) {
