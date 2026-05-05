@@ -175,7 +175,8 @@ public class TranslationVisitor extends ShinobiScriptBaseVisitor<String> {
 
         if(ctx.bloque() != null) {
             for(ShinobiScriptParser.SentenciaContext stnCtx : ctx.bloque().sentencia()) {
-                mainCode.append("    ").append(visit(stnCtx));
+                String stmtCode = visit(stnCtx);
+                mainCode.append(stmtCode.replaceAll("(?m)^","    "));
             }
         }
 
@@ -189,7 +190,8 @@ public class TranslationVisitor extends ShinobiScriptBaseVisitor<String> {
         StringBuilder bloqueCode = new StringBuilder();
         bloqueCode.append("{\n");
         for(ShinobiScriptParser.SentenciaContext stnCtx : ctx.sentencia()) {
-            bloqueCode.append("    ").append(visit(stnCtx));
+            String stmtCode = visit(stnCtx);
+            bloqueCode.append(stmtCode.replaceAll("(?m)^","    "));
         }
         bloqueCode.append("}");
         return bloqueCode.toString();
@@ -382,40 +384,46 @@ public class TranslationVisitor extends ShinobiScriptBaseVisitor<String> {
         StringBuilder switchCode = new StringBuilder();
         switchCode.append("switch(").append(visit(ctx.expresion())).append(") {\n");
         for(ShinobiScriptParser.DeclaracionCaseContext caseCtx : ctx.declaracionCase()) {
-            switchCode.append(visit(caseCtx)).append("\n");
+            String caseStr = visit(caseCtx);
+            switchCode.append(caseStr.replaceAll("(?m)^","    "));
         }
         if(ctx.declaracionDefault() != null) {
-            switchCode.append(visit(ctx.declaracionDefault())).append("\n");
+            String defaultStr = visit(ctx.declaracionDefault());
+            switchCode.append(defaultStr.replaceAll("(?m)^","    "));
         }
-        switchCode.append("}");
+        switchCode.append("}\n");
         return switchCode.toString();
     }
 
     @Override
     public String visitDeclaracionCase(ShinobiScriptParser.DeclaracionCaseContext ctx) {
         StringBuilder caseCode = new StringBuilder();
-        caseCode.append("\tcase ").append(visit(ctx.literal())).append(":\n");
+        caseCode.append("case ").append(visit(ctx.literal())).append(": {\n");
         if(ctx.sentencia() != null) {
             for(ShinobiScriptParser.SentenciaContext sentenciaCtx : ctx.sentencia()) {
-                caseCode.append("\t\t").append(visit(sentenciaCtx));
+                String stmtCode = visit(sentenciaCtx);
+                caseCode.append(stmtCode.replaceAll("(?m)^", "    "));
             }
         }
-        caseCode.append("\t\tbreak;");
+        caseCode.append("    break;\n");
+        caseCode.append("}\n");
         return caseCode.toString();
     }
 
     @Override
     public String visitDeclaracionDefault(ShinobiScriptParser.DeclaracionDefaultContext ctx) {
         StringBuilder defaultCode = new StringBuilder();
-        defaultCode.append("\tdefault:\n");
+        defaultCode.append("default: {\n");
         if(ctx.sentencia() != null) {
             for(ShinobiScriptParser.SentenciaContext sentenciaCtx : ctx.sentencia()) {
-                defaultCode.append("\t\t").append(visit(sentenciaCtx));
+                String stmtCode = visit(sentenciaCtx);
+                defaultCode.append(stmtCode.replaceAll("(?m)^", "    "));
             }
         }
         if(ctx.KOWASU() != null) {
-            defaultCode.append("\t\tbreak;");
+            defaultCode.append("    break;\n");
         }
+        defaultCode.append("}\n");
         return defaultCode.toString();
     }
 
