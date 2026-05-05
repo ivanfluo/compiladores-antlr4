@@ -242,10 +242,10 @@ public class MainView {
 
     private void openGeneratedCode() {
         try {
-            String basePath = System.getProperty("user.dir") + "/src/test/resources/output/";
+            String basePath = System.getProperty("user.dir") + "/output/";
 
-            File file3Dir = new File(basePath + "codigo_3direcciones.txt");
-            File fileCpp = new File(basePath + "codigo.cpp");
+            File file3Dir = new File(basePath + "tac_codigo.txt");
+            File fileCpp = new File(basePath + "cpp_codigo.cpp");
 
             if (!file3Dir.exists() || !fileCpp.exists()) {
                 JOptionPane.showMessageDialog(
