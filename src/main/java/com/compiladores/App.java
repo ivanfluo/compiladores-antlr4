@@ -8,6 +8,7 @@ import com.compiladores.models.*;
 import com.compiladores.semantics.SemanticVisitor;
 import com.compiladores.semantics.handlers.SemanticErrorHandler;
 import com.compiladores.transpiler.ThreeAddressCodeVisitor;
+import com.compiladores.transpiler.TranslationVisitor;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import picocli.CommandLine;
@@ -129,10 +130,17 @@ public class App implements Callable<Integer> {
         ObjectCodeGenerator objCodeGenerator = new ObjectCodeGenerator();
         ThreeAddressCodeVisitor tacCode = new ThreeAddressCodeVisitor();
         tacCode.visit(tree);
+        TranslationVisitor cppCode = new TranslationVisitor();
+        cppCode.visit(tree);
 
         ObjectCodeGenerator.write(
                 "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\tac_codigo.txt",
                 tacCode.getSourceCode()
+        );
+
+        ObjectCodeGenerator.write(
+                "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\cpp_codigo.cpp",
+                cppCode.getSourceCode()
         );
 
         return 0;
