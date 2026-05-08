@@ -23,7 +23,7 @@ public class App implements Callable<Integer> {
     @Override
     public Integer call() throws Exception{
 
-        String src = SourceReader.readSource("src/test/resources/inputs/Test.txt");
+        String src = SourceReader.readSource("src/test/resources/inputs/Menu.txt");
 
         //instancias de handlers para errores en etapas de analisis
         CustomErrorHandler lexerErrorHandler = new CustomErrorHandler(ErrorType.LEXICO);

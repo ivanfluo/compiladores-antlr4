@@ -1,0 +1,75 @@
+// Función 1: No retorna nada (MU), recibe un string (MOJI)
+JUTSU MU saludarNinja KAISHI MOJI nombre SHURIO OUGI
+    KAI KAISHI "Hola " ZOKA nombre SHURIO TEN
+GOKUI
+
+// Función 2: Retorna un entero (CHAKRA), recibe dos enteros (CHAKRA)
+JUTSU CHAKRA sumarChakras KAISHI CHAKRA c1 MO CHAKRA c2 SHURIO OUGI
+    CHAKRA total NARI c1 ZOKA c2 TEN
+    KUCHIYOSE KAISHI total SHURIO TEN
+GOKUI
+
+KAKEMONO KAISHI SHURIO OUGI
+    CHAKRA opcion NARI 0 TEN
+    MOJI nombreNinja NARI "" TEN
+    CHAKRA chakra1 NARI 0 TEN
+    CHAKRA chakra2 NARI 0 TEN
+    CHAKRA suma NARI 0 TEN
+    KANA esVerdad NARI 'n' TEN
+
+    SURU OUGI
+        KAI KAISHI "--- MENU DE LA ALDEA ---" SHURIO TEN
+        KAI KAISHI "1. Saludar a un ninja" SHURIO TEN
+        KAI KAISHI "2. Suma de chakras" SHURIO TEN
+        KAI KAISHI "3. Verificar verdad ninja" SHURIO TEN
+        KAI KAISHI "4. Salir" SHURIO TEN
+        KAI KAISHI "Elige tu camino ninja:" SHURIO TEN
+        
+        MORAU KAISHI opcion SHURIO TEN
+
+        HENKA KAISHI opcion SHURIO OUGI
+            REI 1 TSUGI
+                KAI KAISHI "Ingresa tu nombre ninja:" SHURIO TEN
+                MORAU KAISHI nombreNinja SHURIO TEN
+                
+                // Llamada a la función MU
+                saludarNinja KAISHI nombreNinja SHURIO TEN
+                
+                KOWASU TEN
+            
+            REI 2 TSUGI
+                KAI KAISHI "Ingresa tu primer nivel de chakra:" SHURIO TEN
+                MORAU KAISHI chakra1 SHURIO TEN
+                KAI KAISHI "Ingresa tu segundo nivel de chakra:" SHURIO TEN
+                MORAU KAISHI chakra2 SHURIO TEN
+                
+                // Llamada a la función CHAKRA y asignación
+                suma NARI sumarChakras KAISHI chakra1 MO chakra2 SHURIO TEN
+                
+                KAI KAISHI "Tu chakra total es: "SHURIO TEN
+                KAI KAISHI suma SHURIO TEN
+                KOWASU TEN
+            
+            REI 3 TSUGI
+                KAI KAISHI "Ingresa s(true) o n(false):" SHURIO TEN
+                MORAU KAISHI esVerdad SHURIO TEN
+                
+                MOSHI KAISHI esVerdad ONAJI 's' SHURIO OUGI
+                    KAI KAISHI "¡Ese es tu camino ninja, de veras!" SHURIO TEN
+                GOKUI SORE OUGI
+                    KAI KAISHI "Hmm... parece un genjutsu." SHURIO TEN
+                GOKUI
+                
+                KOWASU TEN
+            
+            REI 4 TSUGI
+                KAI KAISHI "Mision completada. ¡Hasta pronto!" SHURIO TEN
+                KOWASU TEN
+            
+            KYUBI TSUGI
+                KAI KAISHI "Jutsu desconocido. Intenta otra opcion." SHURIO TEN
+        GOKUI
+
+    GOKUI NAGARA KAISHI IE KAISHI opcion ONAJI 4 SHURIO SHURIO TEN
+
+GOKUI
