@@ -120,7 +120,8 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
         code.append("{\n");
         if(!ctx.sentencia().isEmpty()) {
             for(ShinobiScriptParser.SentenciaContext stnCtx : ctx.sentencia()) {
-                code.append(visit(stnCtx));
+                String stmtCode = visit(stnCtx);
+                code.append(stmtCode.replaceAll("(?m)^","    "));
             }
         }
         code.append("}\n");
@@ -190,6 +191,8 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
                 .append(" goto ")
                 .append(firstTrueLabel)
                 .append(";\n");
+
+        code.append("goto ").append(nextEvalLabel).append(";\n");
 
         code.append(firstTrueLabel).append(":\n");
 

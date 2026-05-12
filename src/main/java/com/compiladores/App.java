@@ -134,7 +134,7 @@ public class App implements Callable<Integer> {
         cppCode.visit(tree);
 
         ObjectCodeGenerator.write(
-                "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\tac_codigo.txt",
+                "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\tac_codigo.cpp",
                 tacCode.getSourceCode()
         );
 
