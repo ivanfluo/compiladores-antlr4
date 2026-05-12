@@ -3,15 +3,13 @@ package com.compiladores.semantics;
 import com.compiladores.models.ScopeModel;
 import com.compiladores.semantics.models.Symbol;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ScopeManager {
     private SymbolTable currentScope;
     private final List<SymbolTable> scopes;
+    private final Map<SymbolTable, Integer> childIndexTracker;
     private static ScopeManager instance;
 
     private final List<ScopeModel> scopeHistory = new ArrayList<>();
@@ -20,6 +18,7 @@ public class ScopeManager {
         this.currentScope = new SymbolTable(null, "GLOBAL");
         this.scopes = new ArrayList<>();
         this.scopes.add(this.currentScope);
+        this.childIndexTracker = new HashMap<>();
     }
 
     public static ScopeManager getInstance() {
@@ -32,6 +31,7 @@ public class ScopeManager {
     public void push(String name) {
         SymbolTable newScope = new SymbolTable(currentScope, name);
         scopes.add(newScope);
+        currentScope.addChild(newScope);
         currentScope = newScope;
     }
 
@@ -58,8 +58,42 @@ public class ScopeManager {
                 ));
     }
 
-    public void reset() {
+    public void resetCurrentScopePointer() {
+        while(currentScope.getParent() != null) {
+            currentScope = currentScope.getParent();
+        }
+        childIndexTracker.clear();
+    }
+
+    public void visitNextScopeChild() {
+        int nextChildIndex = childIndexTracker.getOrDefault(currentScope, 0);
+        if(nextChildIndex < currentScope.getChildren().size()) {
+            SymbolTable child = currentScope.getChildren().get(nextChildIndex);
+            childIndexTracker.put(currentScope, nextChildIndex + 1);
+            currentScope = child;
+        }
+    }
+
+    public void exitScopeChild() {
+        if(currentScope.getParent() != null) {
+            currentScope = currentScope.getParent();
+        }
+    }
+
+    public Symbol resolveSymbol(String name) {
+        SymbolTable scope = currentScope;
+        while(scope != null) {
+            if(scope.getSymbols().containsKey(name)) {
+                return scope.getSymbols().get(name);
+            }
+            scope = scope.getParent();
+        }
+        return null;
+    }
+
+    public void resetScopeManager() {
         this.currentScope = new SymbolTable(null, "GLOBAL");
+        this.childIndexTracker.clear();
         this.scopes.clear();
         this.scopes.add(this.currentScope);
         this.scopeHistory.clear();

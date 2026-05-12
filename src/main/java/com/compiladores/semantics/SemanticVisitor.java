@@ -16,6 +16,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     private final ScopeManager scopeManager;
     private final SemanticErrorHandler errorHandler;
     private final CallManager callManager;
+    private final GlobalTypeDictionary typeDictionary;
 
     private Type currentFunctionReturnType = null;
 
@@ -23,6 +24,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
         this.scopeManager = ScopeManager.getInstance();
         this.errorHandler = new SemanticErrorHandler(ErrorType.SEMANTICO);
         this.callManager = CallManager.getInstance();
+        this.typeDictionary = GlobalTypeDictionary.getInstance();
     }
 
     public SemanticErrorHandler getErrorHandler() {
@@ -38,7 +40,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     }
 
     public void resetSemanticVisitor() {
-        scopeManager.reset();
+        scopeManager.resetScopeManager();
         callManager.reset();
     }
 
@@ -167,29 +169,37 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
     @Override
     public Type visitEMultiplicativa(ShinobiScriptParser.EMultiplicativaContext ctx) {
-        return validateArithmeticRule(
+        Type result = validateArithmeticRule(
                 visit(ctx.expresion(0)),
                 visit(ctx.expresion(1)),
                 ctx.op.getText(),
                 ctx.start.getLine(),
                 ctx.start.getCharPositionInLine()
         );
+        if(result != Type.ERROR) {
+            typeDictionary.addTypeToDictionary(ctx,result.toString());
+        }
+        return result;
     }
 
     @Override
     public Type visitEAditiva(ShinobiScriptParser.EAditivaContext ctx) {
-        return validateArithmeticRule(
+        Type result = validateArithmeticRule(
                 visit(ctx.expresion(0)),
                 visit(ctx.expresion(1)),
                 ctx.op.getText(),
                 ctx.start.getLine(),
                 ctx.start.getCharPositionInLine()
         );
+        if(result != Type.ERROR) {
+            typeDictionary.addTypeToDictionary(ctx,result.toString());
+        }
+        return result;
     }
 
     @Override
     public Type visitERelacional(ShinobiScriptParser.ERelacionalContext ctx) {
-        return validateComparisonRule(
+        Type result = validateComparisonRule(
                 visit(ctx.expresion(0)),
                 visit(ctx.expresion(1)),
                 ctx.op.getText(),
@@ -197,11 +207,15 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
                 ctx.start.getLine(),
                 ctx.start.getCharPositionInLine()
         );
+        if(result != Type.ERROR) {
+            typeDictionary.addTypeToDictionary(ctx,result.toString());
+        }
+        return result;
     }
 
     @Override
     public Type visitEIgualdad(ShinobiScriptParser.EIgualdadContext ctx) {
-        return validateComparisonRule(
+        Type result = validateComparisonRule(
                 visit(ctx.expresion(0)),
                 visit(ctx.expresion(1)),
                 ctx.op.getText(),
@@ -209,6 +223,10 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
                 ctx.start.getLine(),
                 ctx.start.getCharPositionInLine()
         );
+        if(result != Type.ERROR) {
+            typeDictionary.addTypeToDictionary(ctx,result.toString());
+        }
+        return result;
     }
 
     @Override
@@ -217,9 +235,16 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
         Type der = visit(ctx.expresion(1));
         String op = ctx.op.getText();
 
-        if(izq == Type.ERROR || der == Type.ERROR) return Type.ERROR;
+        Type result = Type.ERROR;
 
-        if(izq == Type.SHINRI && der == Type.SHINRI) return Type.SHINRI;
+        if(izq == Type.SHINRI && der == Type.SHINRI) {
+            result = Type.SHINRI;
+        }
+
+        if(result != Type.ERROR) {
+            typeDictionary.addTypeToDictionary(ctx,result.toString());
+            return result;
+        }
 
         errorHandler.addSemanticError(
                 "ForbiddenJutsuOperation: El operador lógico [ " + op + " ] no puede comparar los elementos " + izq + " con " + der + ".",
@@ -234,9 +259,10 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     public Type visitENegacion(ShinobiScriptParser.ENegacionContext ctx) {
         Type exp = visit(ctx.expresion());
 
-        if(exp == Type.ERROR) return Type.ERROR;
-
-        if(exp == Type.SHINRI) return Type.SHINRI;
+        if(exp == Type.SHINRI) {
+            typeDictionary.addTypeToDictionary(ctx,exp.toString());
+            return Type.SHINRI;
+        }
 
         errorHandler.addSemanticError(
                 "ForbiddenJutsuOperation: No puedes aplicar el sello de negacion a un elemento del tipo: " + exp + ".",
