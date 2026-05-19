@@ -337,49 +337,63 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
 
     @Override
     public String visitDeclaracionFor(ShinobiScriptParser.DeclaracionForContext ctx) {
-
+        // 1. Espejo del ScopeManager: Bajamos al scope del ciclo FOR
         scopeManager.visitNextScopeChild();
 
         StringBuilder code = new StringBuilder();
 
         String startLabel = generateLabel("FOR_START");
         String endLabel = generateLabel("FOR_END");
+        String bodyLabel = generateLabel("FOR_BODY"); // Etiqueta para el cuerpo
 
-        if(ctx.asignacion(0) != null) {
-            code.append(visit(ctx.asignacion(0)));
-        } else if(ctx.declaracion() != null) {
+        // 2. Inicialización (ej. CHAKRA i = 0; o i = 0;)
+        if(ctx.declaracion() != null) {
             code.append(visit(ctx.declaracion()));
+        } else if(ctx.asignacion() != null && !ctx.asignacion().isEmpty()) {
+            code.append(visit(ctx.asignacion(0)));
         }
 
+        // 3. Etiqueta de inicio (aquí regresa el ciclo)
         code.append(startLabel).append(":\n");
 
+        // 4. Evaluación de la condición
         code.append(visit(ctx.expresion()));
         String condition = this.lastResult;
-        String trueLabel = generateLabel("FOR_BODY");
 
         code.append("if (")
                 .append(condition)
                 .append(")")
                 .append(" goto ")
-                .append(trueLabel)
+                .append(bodyLabel)
                 .append(";\n");
+
         code.append("goto ")
                 .append(endLabel)
                 .append(";\n");
 
-        code.append(trueLabel).append(":\n");
+        // 5. Cuerpo del ciclo
+        code.append(bodyLabel).append(":\n");
         code.append(visit(ctx.bloque()));
 
-        int updateIndex = (ctx.asignacion().size() > 1) ? 1:0;
+        // 6. Actualización / Paso (ej. i = i + 1;)
+        // Calculamos qué índice de 'asignacion' contiene el incremento
+        int updateIndex = (ctx.declaracion() != null) ? 0 : 1;
 
-        if(ctx.asignacion(updateIndex) != null && ctx.asignacion().size() > 1) {
+        if(ctx.asignacion().size() > updateIndex && ctx.asignacion(updateIndex) != null) {
+            code.append("{\n");
             code.append(visit(ctx.asignacion(updateIndex)));
+            code.append("}\n");
         }
 
+        // 7. Salto de regreso para re-evaluar la condición
         code.append("goto ").append(startLabel).append(";\n");
-        code.append(endLabel).append(":\n");
 
+        // 8. Etiqueta final (¡Con el punto y coma fantasma para C++23!)
+        code.append(endLabel).append(": \n");
+
+        // 9. Espejo del ScopeManager: Subimos al salir del ciclo
         scopeManager.exitScopeChild();
+
         return code.toString();
     }
 
@@ -521,7 +535,7 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
         String right = this.lastResult;
 
         String temp = generateTemporal();
-        String op = ctx.op.getText().equals("ZOKA") ? "+" : "?";
+        String op = ctx.op.getText().equals("ZOKA") ? "+" : "-";
 
         String realType = typeDictionary.getTypeFromDictionary(ctx);
         String cppType = convertToCppType(realType);
