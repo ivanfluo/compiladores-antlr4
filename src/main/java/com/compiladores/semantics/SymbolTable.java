@@ -2,7 +2,9 @@ package com.compiladores.semantics;
 
 import com.compiladores.semantics.models.Symbol;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,6 +18,7 @@ import java.util.Map;
 public class SymbolTable {
     private final Map<String, Symbol> symbols = new HashMap<>();
     private final SymbolTable parent;
+    private final List<SymbolTable> childern = new ArrayList<>();
     private final String scopeName;
 
     public SymbolTable(SymbolTable parent, String scopeName) {
@@ -63,6 +66,19 @@ public class SymbolTable {
      */
     public SymbolTable getParent() {
         return parent;
+    }
+
+    public void addChild(SymbolTable child) {
+        childern.add(child);
+    }
+
+    public List<SymbolTable> getChildren() { return childern; }
+
+    public SymbolTable getChild(String name) {
+        for(SymbolTable child : childern){
+            if(child.getScopeName().equals(name)) return child;
+        }
+        return null;
     }
 
     /**

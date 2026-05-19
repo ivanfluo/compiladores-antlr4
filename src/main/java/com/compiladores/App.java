@@ -23,7 +23,7 @@ public class App implements Callable<Integer> {
     @Override
     public Integer call() throws Exception{
 
-        String src = SourceReader.readSource("src/test/resources/inputs/Test.txt");
+        String src = SourceReader.readSource("src/test/resources/inputs/Menu.txt");
 
         //instancias de handlers para errores en etapas de analisis
         CustomErrorHandler lexerErrorHandler = new CustomErrorHandler(ErrorType.LEXICO);
@@ -134,7 +134,7 @@ public class App implements Callable<Integer> {
         cppCode.visit(tree);
 
         ObjectCodeGenerator.write(
-                "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\tac_codigo.txt",
+                "C:\\Programs\\IntelliJ\\compiladores-antlr4\\output\\tac_codigo.cpp",
                 tacCode.getSourceCode()
         );
 

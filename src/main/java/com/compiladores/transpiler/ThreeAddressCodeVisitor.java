@@ -2,6 +2,10 @@ package com.compiladores.transpiler;
 
 import com.compiladores.ShinobiScriptBaseVisitor;
 import com.compiladores.ShinobiScriptParser;
+import com.compiladores.semantics.GlobalTypeDictionary;
+import com.compiladores.semantics.ScopeManager;
+import com.compiladores.semantics.models.Symbol;
+import com.compiladores.semantics.models.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +16,8 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
     private String currentSwitchEndLabel = "";
     private String lastResult = "";
     private String sourceCode = "";
+    private ScopeManager scopeManager = ScopeManager.getInstance();
+    private GlobalTypeDictionary typeDictionary = GlobalTypeDictionary.getInstance();
 
     public String getSourceCode() {
         return this.sourceCode;
@@ -72,7 +78,11 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
     public String visitInit(ShinobiScriptParser.InitContext ctx) {
         StringBuilder program = new StringBuilder();
 
-        program.append("goto MAIN_START\n");
+        scopeManager.resetCurrentScopePointer();
+
+        program.append("#include <iostream>\n");
+        program.append("#include <string>\n\n");
+        program.append("using namespace std;\n\n");
 
         List<ShinobiScriptParser.DeclaracionFuncionContext> functions = ctx.declaracionFuncion();
 
@@ -92,11 +102,13 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
     public String visitMain(ShinobiScriptParser.MainContext ctx) {
         StringBuilder main = new StringBuilder();
 
-        main.append("\nMAIN_START:\n");
+        scopeManager.visitNextScopeChild();
 
+        main.append("int main() {\n");
         main.append(visit(ctx.bloque()));
+        main.append("\n    return 0;\n}\n");
 
-        main.append("\nhalt\n");
+        scopeManager.exitScopeChild();
 
         return main.toString();
     }
@@ -104,13 +116,16 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
     @Override
     public String visitBloque(ShinobiScriptParser.BloqueContext ctx) {
         StringBuilder code = new StringBuilder();
-        code.append("\n");
+
+        code.append("{\n");
         if(!ctx.sentencia().isEmpty()) {
             for(ShinobiScriptParser.SentenciaContext stnCtx : ctx.sentencia()) {
-                code.append(visit(stnCtx));
+                String stmtCode = visit(stnCtx);
+                code.append(stmtCode.replaceAll("(?m)^","    "));
             }
         }
-        code.append("\n");
+        code.append("}\n");
+
         return code.toString();
     }
 
@@ -170,17 +185,22 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
         String firstTrueLabel = generateLabel("IF_TRUE");
         String nextEvalLabel = generateLabel("NEXT_COND");
 
-        code.append("if ")
+        code.append("if (")
                 .append(firstCondition)
+                .append(")")
                 .append(" goto ")
                 .append(firstTrueLabel)
-                .append("\n");
+                .append(";\n");
+
+        code.append("goto ").append(nextEvalLabel).append(";\n");
 
         code.append(firstTrueLabel).append(":\n");
-        code.append(
-                visit(ctx.bloque(0))
-        );
-        code.append("goto ").append(endLabel).append("\n");
+
+        scopeManager.visitNextScopeChild();
+        code.append(visit(ctx.bloque(0)));
+        scopeManager.exitScopeChild();
+
+        code.append("goto ").append(endLabel).append(";\n");
 
         code.append(nextEvalLabel).append(":\n");
         for(int i = 1; i < ctx.expresion().size(); i++) {
@@ -189,27 +209,31 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
             String elseTrueLabel = generateLabel("ELSE_IF_TRUE");
             nextEvalLabel = generateLabel("NEXT_COND");
 
-            code.append("if ")
+            code.append("if (")
                     .append(elseIfCondition)
+                    .append(")")
                     .append(" goto ")
                     .append(elseTrueLabel)
-                    .append("\n");
-            code.append("goto ").append(nextEvalLabel).append("\n");
+                    .append(";\n");
+            code.append("goto ").append(nextEvalLabel).append(";\n");
 
             code.append(elseTrueLabel).append(":\n");
-            code.append(
-                    visit(ctx.bloque(i))
-            );
-            code.append("goto ").append(endLabel).append("\n");
+
+            scopeManager.visitNextScopeChild();
+            code.append(visit(ctx.bloque(i)));
+            scopeManager.exitScopeChild();
+
+            code.append("goto ").append(endLabel).append(";\n");
 
             code.append(nextEvalLabel).append(":\n");
         }
 
         if(ctx.SORE() != null) {
             int lastBlockIndex = ctx.bloque().size() - 1;
-            code.append(
-                    visit(ctx.bloque(lastBlockIndex))
-            );
+
+            scopeManager.visitNextScopeChild();
+            code.append(visit(ctx.bloque(lastBlockIndex)));
+            scopeManager.exitScopeChild();
         }
 
         code.append(endLabel).append(":\n");
@@ -218,6 +242,9 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
 
     @Override
     public String visitDeclaracionSwitch(ShinobiScriptParser.DeclaracionSwitchContext ctx) {
+
+        scopeManager.visitNextScopeChild();
+
         StringBuilder code = new StringBuilder();
         code.append(visit(ctx.expresion()));
         String option = this.lastResult;
@@ -231,36 +258,46 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
         String defaultLabel = (ctx.declaracionDefault() != null) ? generateLabel("DEFAULT") : endLabel;
 
         for(int i = 0; i < ctx.declaracionCase().size(); i++) {
+            code.append("{\n");
             String temp = generateTemporal();
             String caseValue = ctx.declaracionCase(i).literal().getText();
 
-            code.append(temp)
+            code.append("bool ")
+                    .append(temp)
                     .append(" = ")
                     .append(option)
                     .append(" == ")
                     .append(caseValue)
-                    .append("\n");
+                    .append(";\n");
 
-            code.append("if ")
+            code.append("if (")
                     .append(temp)
+                    .append(")")
                     .append(" goto ")
                     .append(caseLabels.get(i))
-                    .append("\n");
+                    .append(";\n");
+            code.append("}\n");
         }
-        code.append("goto ").append(defaultLabel).append("\n");
+        code.append("goto ").append(defaultLabel).append(";\n");
 
         for(int i = 0; i < ctx.declaracionCase().size(); i++) {
             code.append(caseLabels.get(i)).append(":\n");
             this.currentSwitchEndLabel = endLabel;
+            code.append("{\n");
             code.append(visit(ctx.declaracionCase(i)));
+            code.append("}\n");
         }
 
         if(ctx.declaracionDefault() != null) {
             code.append(defaultLabel).append(":\n");
+            code.append("{\n");
             code.append(visit(ctx.declaracionDefault()));
+            code.append("}\n");
         }
 
         code.append(endLabel).append(":\n");
+
+        scopeManager.exitScopeChild();
         return code.toString();
     }
 
@@ -277,7 +314,7 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
         }
 
         if(ctx.KOWASU() != null) {
-            code.append("goto ").append(this.currentSwitchEndLabel).append("\n");
+            code.append("goto ").append(this.currentSwitchEndLabel).append(";\n");
         }
 
         return code.toString();
@@ -300,6 +337,9 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
 
     @Override
     public String visitDeclaracionFor(ShinobiScriptParser.DeclaracionForContext ctx) {
+
+        scopeManager.visitNextScopeChild();
+
         StringBuilder code = new StringBuilder();
 
         String startLabel = generateLabel("FOR_START");
@@ -317,14 +357,15 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
         String condition = this.lastResult;
         String trueLabel = generateLabel("FOR_BODY");
 
-        code.append("if ")
+        code.append("if (")
                 .append(condition)
+                .append(")")
                 .append(" goto ")
                 .append(trueLabel)
-                .append("\n");
+                .append(";\n");
         code.append("goto ")
                 .append(endLabel)
-                .append("\n");
+                .append(";\n");
 
         code.append(trueLabel).append(":\n");
         code.append(visit(ctx.bloque()));
@@ -335,14 +376,18 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
             code.append(visit(ctx.asignacion(updateIndex)));
         }
 
-        code.append("goto ").append(startLabel).append("\n");
+        code.append("goto ").append(startLabel).append(";\n");
         code.append(endLabel).append(":\n");
 
+        scopeManager.exitScopeChild();
         return code.toString();
     }
 
     @Override
     public String visitDeclaracionWhile(ShinobiScriptParser.DeclaracionWhileContext ctx) {
+
+        scopeManager.visitNextScopeChild();
+
         StringBuilder code = new StringBuilder();
 
         String startLabel = generateLabel("WHILE_START");
@@ -355,20 +400,25 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
 
         String condition = this.lastResult;
 
-        code.append("if ").append(condition).append(" goto ").append(bodyLabel).append("\n");
-        code.append("goto ").append(endLabel).append("\n");
+        code.append("if (").append(condition).append(") goto ").append(bodyLabel).append(";\n");
+        code.append("goto ").append(endLabel).append(";\n");
 
         code.append(bodyLabel).append(":\n");
         code.append(visit(ctx.bloque()));
 
-        code.append("goto ").append(startLabel).append("\n");
+        code.append("goto ").append(startLabel).append(";\n");
 
         code.append(endLabel).append(":\n");
+
+        scopeManager.exitScopeChild();
         return code.toString();
     }
 
     @Override
     public String visitDeclaracionDoWhile(ShinobiScriptParser.DeclaracionDoWhileContext ctx) {
+
+        scopeManager.visitNextScopeChild();
+
         StringBuilder code = new StringBuilder();
 
         String startLabel = generateLabel("DO_START");
@@ -380,12 +430,14 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
         code.append(visit(ctx.expresion()));
 
         String condition = this.lastResult;
-        code.append("if ")
+        code.append("if (")
                 .append(condition)
-                .append(" goto ")
+                .append(") goto ")
                 .append(startLabel)
-                .append("\n");
+                .append(";\n");
         code.append(endLabel).append(":\n");
+
+        scopeManager.exitScopeChild();
         return code.toString();
     }
 
@@ -395,13 +447,23 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
 
         String variableName = (ctx.ID() != null) ? ctx.ID().getText() : "";
 
+        Symbol realType = scopeManager.resolveSymbol(variableName);
+        String cppType = convertToCppType(realType.getType().toString());
+
         if(ctx.expresion() != null) {
             code.append(visit(ctx.expresion()));
 
-            code.append(variableName)
+            code.append(cppType)
+                    .append(" ")
+                    .append(variableName)
                     .append(" = ")
                     .append(this.lastResult)
-                    .append("\n");
+                    .append(";\n");
+        }else {
+            code.append(cppType)
+                    .append(" ")
+                    .append(variableName)
+                    .append(";\n");
         }
 
         return code.toString();
@@ -418,7 +480,7 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
         code.append(variableName)
                 .append(" = ")
                 .append(this.lastResult)
-                .append("\n");
+                .append(";\n");
         return code.toString();
     }
 
@@ -442,7 +504,7 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
         String value = this.lastResult;
         String temp = generateTemporal();
 
-        code.append(temp).append(" = !").append(value).append("\n");
+        code.append("bool ").append(temp).append(" = !(").append(value).append(");\n");
         this.lastResult = temp;
 
         return code.toString();
@@ -461,14 +523,19 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
         String temp = generateTemporal();
         String op = ctx.op.getText().equals("ZOKA") ? "+" : "?";
 
-        code.append(temp)
+        String realType = typeDictionary.getTypeFromDictionary(ctx);
+        String cppType = convertToCppType(realType);
+
+        code.append(cppType)
+                .append(" ")
+                .append(temp)
                 .append(" = ")
                 .append(left)
                 .append(" ")
                 .append(op)
                 .append(" ")
                 .append(right)
-                .append("\n");
+                .append(";\n");
         this.lastResult = temp;
         return code.toString();
     }
@@ -486,14 +553,19 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
         String temp = generateTemporal();
         String op = ctx.op.getText().equals("BAI") ? "*" : "/";
 
-        code.append(temp)
+        String realType = typeDictionary.getTypeFromDictionary(ctx);
+        String cppType = convertToCppType(realType);
+
+        code.append(cppType)
+                .append(" ")
+                .append(temp)
                 .append(" = ")
                 .append(left)
                 .append(" ")
                 .append(op)
                 .append(" ")
                 .append(right)
-                .append("\n");
+                .append(";\n");
         this.lastResult = temp;
         return code.toString();
     }
@@ -521,14 +593,15 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
             default -> finalOp = "";
         }
 
-        code.append(temp)
+        code.append("bool ")
+                .append(temp)
                 .append(" = ")
                 .append(left)
                 .append(" ")
                 .append(finalOp)
                 .append(" ")
                 .append(right)
-                .append("\n");
+                .append(";\n");
         this.lastResult = temp;
         return code.toString();
     }
@@ -546,14 +619,15 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
 
         String op = ctx.op.getText().equals("ONAJI") ? "==" : "!=";
 
-        code.append(temp)
+        code.append("bool ")
+                .append(temp)
                 .append(" = ")
                 .append(left)
                 .append(" ")
                 .append(op)
                 .append(" ")
                 .append(right)
-                .append("\n");
+                .append(";\n");
         this.lastResult = temp;
         return code.toString();
     }
@@ -569,39 +643,73 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
         String right = this.lastResult;
 
         String temp = generateTemporal();
-        String op = ctx.op.getText().equals("TO") ? "AND" : "OR";
+        String op = ctx.op.getText().equals("TO") ? "&&" : "||";
 
-        code.append(temp)
+        code.append("bool ")
+                .append(temp)
                 .append(" = ")
                 .append(left)
                 .append(" ")
                 .append(op)
                 .append(" ")
                 .append(right)
-                .append("\n");
+                .append(";\n");
         this.lastResult = temp;
         return code.toString();
     }
 
     @Override
     public String visitDeclaracionFuncion(ShinobiScriptParser.DeclaracionFuncionContext ctx) {
-        StringBuilder code = new StringBuilder();
+        scopeManager.visitNextScopeChild();
 
-        String funcName = ctx.ID().getText();
+        StringBuilder functionCode = new StringBuilder();
+        String returnType;
+        if(ctx.MU() != null) {
+            returnType = "void";
+        }else {
+            returnType = convertToCppType(ctx.tipo().getText());
+        }
 
-        code.append("\nfunc ").append(funcName).append(":\n");
+        String id = ctx.ID().getText();
 
-        code.append(visit(ctx.bloque()));
+        functionCode.append(returnType)
+                .append(" ")
+                .append(id)
+                .append("(");
 
-        code.append("end func ").append(funcName).append("\n");
-        return code.toString();
+        ShinobiScriptParser.ParametrosContext paramCtx = ctx.parametros();
+
+        if(paramCtx != null) {
+            for(int i = 0; i < paramCtx.tipo().size(); i++) {
+                String pType = convertToCppType(paramCtx.tipo(i).getText());
+                String pId = paramCtx.ID(i).getText();
+
+                functionCode.append(pType)
+                        .append(" ")
+                        .append(pId);
+                if(i < paramCtx.tipo().size() - 1) {
+                    functionCode.append(", ");
+                }
+            }
+        }
+
+        functionCode.append(")\n");
+
+        functionCode.append(
+                visit(ctx.bloque())
+        );
+
+        functionCode.append("\n");
+
+        scopeManager.exitScopeChild();
+        return functionCode.toString();
     }
 
     @Override
     public String visitRetorno(ShinobiScriptParser.RetornoContext ctx) {
         StringBuilder code = new StringBuilder();
         code.append(visit(ctx.expresion()));
-        code.append("return ").append(this.lastResult).append("\n");
+        code.append("return ").append(this.lastResult).append(";\n");
         return code.toString();
     }
 
@@ -616,22 +724,40 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
 
         String funcName = ctx.ID().getText();
 
+        Symbol realType = scopeManager.resolveSymbol(funcName);
+        String cppType = convertToCppType(realType.getType().toString());
+
+        StringBuilder params = new StringBuilder();
         List<ShinobiScriptParser.ExpresionContext> args = ctx.expresion();
 
-        for(ShinobiScriptParser.ExpresionContext argCtx : args) {
-            code.append(visit(argCtx));
-            code.append("param ").append(this.lastResult).append("\n");
+        if(args != null) {
+            for(int i = 0; i < args.size(); i++) {
+                code.append(visit(args.get(i)));
+                params.append(this.lastResult);
+                if(i < args.size() - 1) {
+                    params.append(", ");
+                }
+            }
         }
 
-        String temp = generateTemporal();
-        code.append(temp)
-                .append(" = call ")
-                .append(funcName)
-                .append(", ")
-                .append(args.size())
-                .append("\n");
-
-        this.lastResult = temp;
+        if(cppType.equals("void")) {
+            code.append(funcName)
+                    .append("(")
+                    .append(params)
+                    .append(");\n");
+            this.lastResult = "";
+        }else if (!cppType.equals("/* error_type */ void")) {
+            String temp = generateTemporal();
+            code.append(cppType)
+                    .append(" ")
+                    .append(temp)
+                    .append(" = ")
+                    .append(funcName)
+                    .append("(")
+                    .append(params)
+                    .append(");\n");
+            this.lastResult = temp;
+        }
 
         return code.toString();
     }
@@ -639,13 +765,8 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
     @Override
     public String visitImpresion(ShinobiScriptParser.ImpresionContext ctx) {
         StringBuilder code = new StringBuilder();
-
         code.append(visit(ctx.expresion()));
-        code.append("param ").append(this.lastResult).append("\n");
-
-        String temp = generateTemporal();
-
-        code.append(temp).append(" = call _cout, 1\n");
+        code.append("cout<<").append(this.lastResult).append("<<endl;\n");
         return code.toString();
     }
 
@@ -654,11 +775,20 @@ public class ThreeAddressCodeVisitor extends ShinobiScriptBaseVisitor<String> {
         StringBuilder code = new StringBuilder();
 
         String varName = ctx.ID().getText();
-        String temp = generateTemporal();
-
-        code.append(temp).append(" = call _cin, 0\n");
-        code.append(varName).append(" = ").append(temp).append("\n");
+        code.append("cin>>").append(varName).append(";\n");
 
         return code.toString();
+    }
+
+    private String convertToCppType(String type) {
+        return switch (type) {
+            case "CHAKRA" -> "int";
+            case "RYO" -> "double";
+            case "SHINRI" -> "bool";
+            case "KANA" -> "char";
+            case "MOJI" -> "string";
+            case "MU" -> "void";
+            default -> "/* error_type */ void";
+        };
     }
 }
