@@ -26,8 +26,7 @@ public class MainView {
     private JButton btnBrowser;
     private JButton btnOpenCode;
     private RSyntaxTextArea editor;
-    private JFrame frame3Dir;
-    private JFrame frameCpp;
+    private JFrame codeFrame;
 
     public JPanel getMainPanel() {
         return mainPanel;
@@ -264,47 +263,46 @@ public class MainView {
         try {
             String basePath = System.getProperty("user.dir") + "/output/";
 
-            File file3Dir = new File(basePath + "tac_codigo.txt");
-            File fileCpp = new File(basePath + "cpp_codigo.cpp");
+            File fileCpp = new File(basePath + "tac_codigo.txt");
 
-            if (!file3Dir.exists() || !fileCpp.exists()) {
+            if (!fileCpp.exists()) {
                 JOptionPane.showMessageDialog(
                         mainPanel,
-                        "No se encontraron los archivos generados.\nEjecuta el análisis primero.",
+                        "No se encontró el archivo generado.\nEjecuta el análisis primero.",
                         "Aviso",
                         JOptionPane.WARNING_MESSAGE
                 );
                 return;
             }
 
-            String content3Dir = Files.readString(file3Dir.toPath());
             String contentCpp = Files.readString(fileCpp.toPath());
 
             Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-            int width = screen.width / 2;
+
+            int width = screen.width - 300;
             int height = screen.height - 150;
+
+            int x = (screen.width - width) / 2;
             int y = (screen.height - height) / 2;
 
-            if (frame3Dir == null || !frame3Dir.isDisplayable()) {
-                frame3Dir = createCodeWindow("Código 3 Direcciones", 0, y, width, height, false);
+            if (codeFrame == null || !codeFrame.isDisplayable()) {
+                codeFrame = createCodeWindow(
+                        "Código Generado C++", x, y, width, height);
             }
 
-            if (frameCpp == null || !frameCpp.isDisplayable()) {
-                frameCpp = createCodeWindow("Código C++", width, y, width, height, true);
-            }
+            updateWindowContent(codeFrame, contentCpp);
 
-            updateWindowContent(frame3Dir, content3Dir);
-            updateWindowContent(frameCpp, contentCpp);
-
-            frame3Dir.toFront();
-            frameCpp.toFront();
+            codeFrame.toFront();
 
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(mainPanel, "Error al abrir los archivos");
+            JOptionPane.showMessageDialog(
+                    mainPanel,
+                    "Error al abrir el archivo"
+            );
         }
     }
 
-    private JFrame createCodeWindow(String title, int x, int y, int w, int h, boolean isCpp) {
+    private JFrame createCodeWindow(String title, int x, int y, int w, int h) {
         JFrame frame = new JFrame(title);
 
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -312,26 +310,26 @@ public class MainView {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                if (frame == frame3Dir) frame3Dir = null;
-                if (frame == frameCpp) frameCpp = null;
+                codeFrame = null;
             }
         });
 
         RSyntaxTextArea textArea = new RSyntaxTextArea(25, 80);
 
-        if (isCpp) {
-            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_CPLUSPLUS);
-        } else {
-            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
-        }
+        textArea.setSyntaxEditingStyle(
+                SyntaxConstants.SYNTAX_STYLE_CPLUSPLUS
+        );
 
         textArea.setCodeFoldingEnabled(true);
+
         textArea.setFont(new Font("Consolas", Font.PLAIN, 14));
+
         textArea.setEditable(false);
 
         frame.add(new RTextScrollPane(textArea));
 
         frame.setBounds(x, y, w, h);
+
         frame.setVisible(true);
 
         return frame;
@@ -340,7 +338,6 @@ public class MainView {
     private void updateWindowContent(JFrame frame, String content) {
         RTextScrollPane scrollPane = (RTextScrollPane) frame.getContentPane().getComponent(0);
         RSyntaxTextArea textArea = (RSyntaxTextArea) scrollPane.getTextArea();
-
         textArea.setText(content);
         textArea.setCaretPosition(0);
     }
