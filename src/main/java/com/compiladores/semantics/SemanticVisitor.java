@@ -46,7 +46,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
     @Override
     public Type visitInit(ShinobiScriptParser.InitContext ctx) {
-        for(ShinobiScriptParser.DeclaracionFuncionContext func : ctx.declaracionFuncion()) {
+        for (ShinobiScriptParser.DeclaracionFuncionContext func : ctx.declaracionFuncion()) {
             visit(func);
         }
 
@@ -69,11 +69,11 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
     @Override
     public Type visitTipo(ShinobiScriptParser.TipoContext ctx) {
-        if(ctx.CHAKRA() != null) return Type.CHAKRA;
-        if(ctx.RYO() != null) return Type.RYO;
-        if(ctx.KANA() != null) return Type.KANA;
-        if(ctx.MOJI() != null) return Type.MOJI;
-        if(ctx.SHINRI() != null) return Type.SHINRI;
+        if (ctx.CHAKRA() != null) return Type.CHAKRA;
+        if (ctx.RYO() != null) return Type.RYO;
+        if (ctx.KANA() != null) return Type.KANA;
+        if (ctx.MOJI() != null) return Type.MOJI;
+        if (ctx.SHINRI() != null) return Type.SHINRI;
 
         return Type.ERROR;
     }
@@ -115,10 +115,10 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
         String txtType = ctx.declaracion().tipo().getText();
         Type type = Type.toType(txtType);
 
-        if(ctx.declaracion().expresion() != null) {
+        if (ctx.declaracion().expresion() != null) {
             Type expresionType = visit(ctx.declaracion().expresion());
 
-            if(expresionType != null && expresionType != Type.ERROR && type != expresionType) {
+            if (expresionType != null && expresionType != Type.ERROR && type != expresionType) {
                 errorHandler.addSemanticError(
                         "IncompatibleElementConflict: No puedes sellar un elemento " + expresionType + " en un contenedor " + type + ".",
                         ctx.start.getLine(),
@@ -135,7 +135,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
         boolean successful = scopeManager.getCurrentScope().insert(newSymbol);
 
-        if(!successful) {
+        if (!successful) {
             errorHandler.addSemanticError(
                     "DuplicateClanMemberException: El nombre " + id + " ya ha sido reclamado por otro ninja en este equipo.",
                     ctx.start.getLine(),
@@ -152,7 +152,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
         Symbol s = scopeManager.getCurrentScope().lookup(id);
 
-        if(s == null) {
+        if (s == null) {
             errorHandler.addSemanticError(
                     "UndeclaredNinjaException: El ninja [ " + id + " ], no ha sido declarado en este contexto.",
                     ctx.start.getLine(),
@@ -176,8 +176,8 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
                 ctx.start.getLine(),
                 ctx.start.getCharPositionInLine()
         );
-        if(result != Type.ERROR) {
-            typeDictionary.addTypeToDictionary(ctx,result.toString());
+        if (result != Type.ERROR) {
+            typeDictionary.addTypeToDictionary(ctx, result.toString());
         }
         return result;
     }
@@ -191,8 +191,8 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
                 ctx.start.getLine(),
                 ctx.start.getCharPositionInLine()
         );
-        if(result != Type.ERROR) {
-            typeDictionary.addTypeToDictionary(ctx,result.toString());
+        if (result != Type.ERROR) {
+            typeDictionary.addTypeToDictionary(ctx, result.toString());
         }
         return result;
     }
@@ -207,8 +207,8 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
                 ctx.start.getLine(),
                 ctx.start.getCharPositionInLine()
         );
-        if(result != Type.ERROR) {
-            typeDictionary.addTypeToDictionary(ctx,result.toString());
+        if (result != Type.ERROR) {
+            typeDictionary.addTypeToDictionary(ctx, result.toString());
         }
         return result;
     }
@@ -223,8 +223,8 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
                 ctx.start.getLine(),
                 ctx.start.getCharPositionInLine()
         );
-        if(result != Type.ERROR) {
-            typeDictionary.addTypeToDictionary(ctx,result.toString());
+        if (result != Type.ERROR) {
+            typeDictionary.addTypeToDictionary(ctx, result.toString());
         }
         return result;
     }
@@ -237,12 +237,12 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
         Type result = Type.ERROR;
 
-        if(izq == Type.SHINRI && der == Type.SHINRI) {
+        if (izq == Type.SHINRI && der == Type.SHINRI) {
             result = Type.SHINRI;
         }
 
-        if(result != Type.ERROR) {
-            typeDictionary.addTypeToDictionary(ctx,result.toString());
+        if (result != Type.ERROR) {
+            typeDictionary.addTypeToDictionary(ctx, result.toString());
             return result;
         }
 
@@ -259,8 +259,8 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     public Type visitENegacion(ShinobiScriptParser.ENegacionContext ctx) {
         Type exp = visit(ctx.expresion());
 
-        if(exp == Type.SHINRI) {
-            typeDictionary.addTypeToDictionary(ctx,exp.toString());
+        if (exp == Type.SHINRI) {
+            typeDictionary.addTypeToDictionary(ctx, exp.toString());
             return Type.SHINRI;
         }
 
@@ -288,12 +288,12 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
         Type initConditionType = visit(ctx.expresion(0));
         validateBooleanCondition(initConditionType, ctx.expresion(0));
 
-        for(int i = 0; i < ctx.expresion().size(); i++) {
+        for (int i = 0; i < ctx.expresion().size(); i++) {
             Type nestedConditionType = visit(ctx.expresion(i));
             validateBooleanCondition(nestedConditionType, ctx.expresion(i));
         }
 
-        for(int i = 0; i < ctx.bloque().size(); i++) {
+        for (int i = 0; i < ctx.bloque().size(); i++) {
             String tag = (i == 0) ? "IF" : (i < ctx.expresion().size() ? "ELSE IF" : "THEN");
 
             scopeManager.push(tag + "_LN" + ctx.bloque(i).start.getLine());
@@ -311,11 +311,11 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
         scopeManager.push("SWITCH_LN" + ctx.start.getLine());
         Type initConditionType = visit(ctx.expresion());
 
-        if(initConditionType == Type.ERROR) return Type.ERROR;
+        if (initConditionType == Type.ERROR) return Type.ERROR;
 
         List<ShinobiScriptParser.DeclaracionCaseContext> cases = ctx.declaracionCase();
 
-        if(cases.isEmpty()) {
+        if (cases.isEmpty()) {
             errorHandler.addSemanticError(
                     "ForbbidenJutsuOperation: se requiere de por lo menos una elección dentro de la transformación",
                     ctx.start.getLine(),
@@ -328,38 +328,38 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
         int caseIndex = 0;
         Set<String> literals = new HashSet<>();
 
-        for(ShinobiScriptParser.DeclaracionCaseContext caseContext : cases) {
+        for (ShinobiScriptParser.DeclaracionCaseContext caseContext : cases) {
             String literalText = caseContext.literal().getText();
 
-            if(!literals.add(literalText)) {
+            if (!literals.add(literalText)) {
                 errorHandler.addSemanticError(
                         "DuplicatedClanMemberException: la eleccion " + literalText + " ya existe en esta transformación.",
                         caseContext.start.getLine(),
                         caseContext.start.getCharPositionInLine()
                 );
 
-                if(areCasesOk) {
+                if (areCasesOk) {
                     areCasesOk = false;
                 }
             }
 
             Type caseType = visit(caseContext.literal());
             caseIndex++;
-            if(caseType != Type.ERROR && caseType != initConditionType) {
+            if (caseType != Type.ERROR && caseType != initConditionType) {
                 errorHandler.addSemanticError(
                         "IncompatibleElementConflict: La elección #" + caseIndex + " en la transformación no se puede evaluar, al tratar de elegir un tipo "
-                        + caseType + " de un tipo " + initConditionType + ".",
+                                + caseType + " de un tipo " + initConditionType + ".",
                         caseContext.start.getLine(),
                         caseContext.start.getCharPositionInLine()
                 );
 
-                if(areCasesOk) {
+                if (areCasesOk) {
                     areCasesOk = false;
                 }
             }
         }
 
-        if(!areCasesOk) {
+        if (!areCasesOk) {
             errorHandler.addSemanticError(
                     "ForbbidenJutsuOperation: Los operdores de una transformación (switch) deben ser del mismo tipo.",
                     ctx.start.getLine(),
@@ -368,15 +368,15 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
             return Type.ERROR;
         }
 
-        for(ShinobiScriptParser.DeclaracionCaseContext caseContext : cases) {
-            for(ShinobiScriptParser.SentenciaContext sentence : caseContext.sentencia()) {
+        for (ShinobiScriptParser.DeclaracionCaseContext caseContext : cases) {
+            for (ShinobiScriptParser.SentenciaContext sentence : caseContext.sentencia()) {
                 visit(sentence);
             }
         }
 
         ShinobiScriptParser.DeclaracionDefaultContext defaultContext = ctx.declaracionDefault();
 
-        if(defaultContext != null) {
+        if (defaultContext != null) {
             visit(defaultContext);
         }
 
@@ -392,7 +392,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     @Override
     public Type visitDeclaracionDefault(ShinobiScriptParser.DeclaracionDefaultContext ctx) {
 
-        for(ShinobiScriptParser.SentenciaContext sentence : ctx.sentencia()) {
+        for (ShinobiScriptParser.SentenciaContext sentence : ctx.sentencia()) {
             visit(sentence);
         }
 
@@ -401,36 +401,37 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
     @Override
     public Type visitDeclaracionFor(ShinobiScriptParser.DeclaracionForContext ctx) {
-        scopeManager.push("FOR_LN"+ctx.start.getLine());
+        scopeManager.push("FOR_LN" + ctx.start.getLine());
 
-        boolean hasInitialAssignment = false;
-
-        if(ctx.declaracion() != null) {
+        // 1. Inicialización
+        if (ctx.declaracion() != null) {
             visit(ctx.declaracion());
-        }else if(ctx.asignacion() != null && !ctx.asignacion().isEmpty()) {
-            hasInitialAssignment = true;
+        } else if (ctx.asignacion() != null && !ctx.asignacion().isEmpty()) {
             visit(ctx.asignacion(0));
         }
 
-        if(ctx.expresion() != null) {
+        // 2. Condición
+        if (ctx.expresion() != null) {
             Type expType = visit(ctx.expresion());
-            if(expType != Type.ERROR && expType != Type.SHINRI) {
+            if (expType != Type.ERROR && expType != Type.SHINRI) {
                 errorHandler.addSemanticError(
-                        "ConditionNotShinriException: La condicion debe ser SHINRI (boolean) pero en cambio se recibio " + expType + ".",
+                        "ConditionNotShinriException: La condicion debe ser SHINRI pero se recibio " + expType + ".",
                         ctx.expresion().start.getLine(),
                         ctx.expresion().start.getCharPositionInLine()
                 );
             }
         }
 
+        // 3. Cuerpo del ciclo
         visit(ctx.bloque());
 
-        if(hasInitialAssignment) {
-            visit(ctx.asignacion(0));
-        }else if(ctx.asignacion().size() > 1){
-            visit(ctx.asignacion(1));
+        // 4. Actualización (El incremento)
+        // Si hubo declaración (ej. CHAKRA i = 0), el incremento es la asignacion(0).
+        // Si hubo asignación inicial (ej. i = 0), el incremento es la asignacion(1).
+        int updateIndex = (ctx.declaracion() != null) ? 0 : 1;
+        if (ctx.asignacion().size() > updateIndex) {
+            visit(ctx.asignacion(updateIndex)); // ¡Ahora sí visita el incremento!
         }
-
 
         scopeManager.pop();
         return Type.MU;
@@ -440,9 +441,9 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     public Type visitDeclaracionWhile(ShinobiScriptParser.DeclaracionWhileContext ctx) {
         Type initConditionType = visit(ctx.expresion());
 
-        if(initConditionType == Type.ERROR) return Type.ERROR;
+        if (initConditionType == Type.ERROR) return Type.ERROR;
 
-        if(initConditionType != Type.SHINRI) {
+        if (initConditionType != Type.SHINRI) {
             errorHandler.addSemanticError(
                     "IncompatibleElementConflict: la condicion debe ser SHINRI (boolean) pero en cambio se recibio " + initConditionType + ".",
                     ctx.expresion().start.getLine(),
@@ -451,7 +452,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
             return Type.ERROR;
         }
 
-        scopeManager.push("WHILE_LN"+ctx.start.getLine());
+        scopeManager.push("WHILE_LN" + ctx.start.getLine());
 
         visit(ctx.bloque());
 
@@ -467,7 +468,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
     @Override
     public Type visitDeclaracionDoWhile(ShinobiScriptParser.DeclaracionDoWhileContext ctx) {
-        scopeManager.push("DO_WHILE_LN"+ctx.start.getLine());
+        scopeManager.push("DO_WHILE_LN" + ctx.start.getLine());
 
         visit(ctx.bloque());
 
@@ -475,9 +476,9 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
         scopeManager.pop();
 
-        if(initConditionType == Type.ERROR) return Type.ERROR;
+        if (initConditionType == Type.ERROR) return Type.ERROR;
 
-        if(initConditionType != Type.SHINRI) {
+        if (initConditionType != Type.SHINRI) {
             errorHandler.addSemanticError(
                     "IncompatibleElementConflict: la condicion debe ser SHINRI (boolean) pero en cambio se recibio " + initConditionType + ".",
                     ctx.expresion().start.getLine(),
@@ -498,9 +499,9 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     public Type visitImpresion(ShinobiScriptParser.ImpresionContext ctx) {
         Type expType = visit(ctx.expresion());
 
-        if(expType == Type.ERROR) return Type.ERROR;
+        if (expType == Type.ERROR) return Type.ERROR;
 
-        if(expType == Type.MU) {
+        if (expType == Type.MU) {
             errorHandler.addSemanticError(
                     "ForbiddenJutsuOperation: No se puede proyectar el vacío (MU) en la consola.",
                     ctx.expresion().start.getLine(),
@@ -514,7 +515,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
     @Override
     public Type visitDeclaracionFuncion(ShinobiScriptParser.DeclaracionFuncionContext ctx) {
-        if(ctx.MU() != null) {
+        if (ctx.MU() != null) {
             this.currentFunctionReturnType = Type.MU;
         } else {
             this.currentFunctionReturnType = visit(ctx.tipo());
@@ -524,7 +525,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
         Symbol s = scopeManager.getCurrentScope().lookup(functionName);
 
-        if(s != null) {
+        if (s != null) {
             errorHandler.addSemanticError(
                     "DuplicatedClanMemberException: el Jutsu [ " + functionName + " ] ya ha sido creado por otro ninja en otra aldea.",
                     ctx.start.getLine(),
@@ -542,13 +543,13 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
 
         List<Symbol> params = new ArrayList<>();
 
-        if(paramsCtx != null) {
-            for(int i = 0; i<paramsCtx.tipo().size(); i++) {
+        if (paramsCtx != null) {
+            for (int i = 0; i < paramsCtx.tipo().size(); i++) {
                 Type pType = visit(paramsCtx.tipo(i));
                 String pName = paramsCtx.ID(i).getText();
 
-                for(Symbol existingSymbol : params) {
-                    if(existingSymbol.getName().equals(pName)) {
+                for (Symbol existingSymbol : params) {
+                    if (existingSymbol.getName().equals(pName)) {
                         errorHandler.addSemanticError(
                                 "DuplicatedClanMemberException: El paramtero [ " + pName + " ] ya esta definido dentro de la firma de este Jutsu.",
                                 paramsCtx.ID(i).getSymbol().getLine(),
@@ -572,9 +573,9 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
         Symbol functionSymbol = funcBuild.build();
         scopeManager.getCurrentScope().insert(functionSymbol);
 
-        scopeManager.push("JUTSU_"+functionName.toUpperCase() +"_LN" + ctx.start.getLine());
-        if(!params.isEmpty()) {
-            for(Symbol param : params) {
+        scopeManager.push("JUTSU_" + functionName.toUpperCase() + "_LN" + ctx.start.getLine());
+        if (!params.isEmpty()) {
+            for (Symbol param : params) {
                 scopeManager.getCurrentScope().insert(param);
             }
         }
@@ -590,7 +591,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     public Type visitSLlamada(ShinobiScriptParser.SLlamadaContext ctx) {
         String callee = ctx.llamadaFuncion().ID().getText();
         String caller = scopeManager.getCurrentScope().getScopeName();
-        callManager.add(caller,callee, ctx.start.getLine());
+        callManager.add(caller, callee, ctx.start.getLine());
 
         visit(ctx.llamadaFuncion());
         return Type.MU;
@@ -600,12 +601,12 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     public Type visitELlamada(ShinobiScriptParser.ELlamadaContext ctx) {
         String callee = ctx.llamadaFuncion().ID().getText();
         String caller = scopeManager.getCurrentScope().getScopeName();
-        callManager.add(caller,callee, ctx.start.getLine());
+        callManager.add(caller, callee, ctx.start.getLine());
 
         Type returnType = visit(ctx.llamadaFuncion());
 
-        if(returnType == Type.ERROR) return Type.ERROR;
-        if(returnType == Type.MU) {
+        if (returnType == Type.ERROR) return Type.ERROR;
+        if (returnType == Type.MU) {
             errorHandler.addSemanticError(
                     "ForbiddenJutsuOperation: El Jutsu [ " + ctx.llamadaFuncion().ID().getText() +
                             " ] no devuelve energía (MU) y no puede ser parte de una expresión.",
@@ -623,7 +624,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
         String functionName = ctx.ID().getText();
         Symbol functionSymbol = scopeManager.getCurrentScope().lookup(functionName);
 
-        if(functionSymbol == null || functionSymbol.getCategory() != Category.FUNCTION) {
+        if (functionSymbol == null || functionSymbol.getCategory() != Category.FUNCTION) {
             errorHandler.addSemanticError(
                     "ForbiddenJutsuOperation: El Jutsu [ " + functionName + " ] no ha sido invocado por que no existe en ninguan aldea.",
                     ctx.start.getLine(),
@@ -635,7 +636,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
         List<ShinobiScriptParser.ExpresionContext> sentArguments = ctx.expresion();
         List<Type> expectedTypes = functionSymbol.getParametersTypes();
 
-        if(sentArguments.size() != expectedTypes.size()) {
+        if (sentArguments.size() != expectedTypes.size()) {
             errorHandler.addSemanticError(
                     "IncompatibleElementConflict: El Jutsu [ " + functionName + " ] esperaba " +
                             expectedTypes.size() + " pergaminos, pero se enviaron " + sentArguments.size() + ".",
@@ -645,13 +646,13 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
             return Type.ERROR;
         }
 
-        for(int i = 0; i<sentArguments.size(); i++) {
+        for (int i = 0; i < sentArguments.size(); i++) {
             Type pType = visit(sentArguments.get(i));
             Type eType = expectedTypes.get(i);
 
-            if(pType != Type.ERROR && pType != eType) {
+            if (pType != Type.ERROR && pType != eType) {
                 errorHandler.addSemanticError(
-                        "IncompatibleElementConflict: El pergamino #" + (i+1) + " para el Jutsu [ " +
+                        "IncompatibleElementConflict: El pergamino #" + (i + 1) + " para el Jutsu [ " +
                                 functionName + " ] deberia ser " + eType + " pero es " + pType + ".",
                         sentArguments.get(i).start.getLine(),
                         sentArguments.get(i).start.getCharPositionInLine()
@@ -671,7 +672,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     public Type visitRetorno(ShinobiScriptParser.RetornoContext ctx) {
         Type returnTypeFound = (ctx.expresion() != null) ? visit(ctx.expresion()) : Type.MU;
 
-        if(this.currentFunctionReturnType == null) {
+        if (this.currentFunctionReturnType == null) {
             errorHandler.addSemanticError(
                     "ForbiddenJutsuOperation: El sello KUCHIYOSE (return) solo puede usarse dentro de un Jutsu.",
                     ctx.start.getLine(),
@@ -680,8 +681,8 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
             return Type.ERROR;
         }
 
-        if(returnTypeFound != Type.ERROR ) {
-            if(this.currentFunctionReturnType == Type.MU && returnTypeFound != Type.MU) {
+        if (returnTypeFound != Type.ERROR) {
+            if (this.currentFunctionReturnType == Type.MU && returnTypeFound != Type.MU) {
                 errorHandler.addSemanticError(
                         "IncompatibleElementConcflict: El Jutsu que invoca al sello es de tipo MU, pero el sello no retorna ese valor.",
                         ctx.start.getLine(),
@@ -689,7 +690,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
                 );
                 return Type.ERROR;
             }
-            if(returnTypeFound != this.currentFunctionReturnType) {
+            if (returnTypeFound != this.currentFunctionReturnType) {
                 errorHandler.addSemanticError(
                         "IncompatibleElementConflict: Se esperaba devolver " + this.currentFunctionReturnType +
                                 " pero se encontro " + returnTypeFound + ".",
@@ -742,11 +743,11 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     }
 
     private Type validateArithmeticRule(Type izq, Type der, String op, int line, int column) {
-        if(izq == Type.ERROR || der == Type.ERROR) return Type.ERROR;
+        if (izq == Type.ERROR || der == Type.ERROR) return Type.ERROR;
 
-        if(izq == Type.CHAKRA && der == Type.CHAKRA) return Type.CHAKRA;
-        if((izq == Type.CHAKRA || izq == Type.RYO) && (der == Type.CHAKRA || der == Type.RYO)) return Type.RYO;
-        if(izq == Type.MOJI && der == Type.MOJI) return Type.MOJI;
+        if (izq == Type.CHAKRA && der == Type.CHAKRA) return Type.CHAKRA;
+        if ((izq == Type.CHAKRA || izq == Type.RYO) && (der == Type.CHAKRA || der == Type.RYO)) return Type.RYO;
+        if (izq == Type.MOJI && der == Type.MOJI) return Type.MOJI;
 
         errorHandler.addSemanticError(
                 "ForbiddenJutsuOperation: El operador aritmetico \'" + op + "\' no puede combinar elementos " + izq + " con " + der + ".",
@@ -758,11 +759,11 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     }
 
     private Type validateComparisonRule(Type izq, Type der, String op, boolean isOnlyNumberComparison, int line, int column) {
-        if(izq == Type.ERROR || der == Type.ERROR) return Type.ERROR;
+        if (izq == Type.ERROR || der == Type.ERROR) return Type.ERROR;
 
-        if((izq == Type.CHAKRA || izq == Type.RYO) && (der == Type.CHAKRA || der == Type.RYO)) return Type.SHINRI;
-        if(!isOnlyNumberComparison) {
-            if(izq == der && izq != Type.MU) return Type.SHINRI;
+        if ((izq == Type.CHAKRA || izq == Type.RYO) && (der == Type.CHAKRA || der == Type.RYO)) return Type.SHINRI;
+        if (!isOnlyNumberComparison) {
+            if (izq == der && izq != Type.MU) return Type.SHINRI;
         }
 
         errorHandler.addSemanticError(
@@ -775,7 +776,7 @@ public class SemanticVisitor extends ShinobiScriptBaseVisitor<Type> {
     }
 
     private void validateBooleanCondition(Type type, ShinobiScriptParser.ExpresionContext expCtx) {
-        if(type != Type.ERROR && type != Type.SHINRI) {
+        if (type != Type.ERROR && type != Type.SHINRI) {
             errorHandler.addSemanticError(
                     "ConditionNotShinriExcpetion: La condicion debe ser SHINRI (boolean) pero en cambio se recibió " + type + ".",
                     expCtx.start.getLine(),
